@@ -1370,11 +1370,13 @@ document.getElementById("btn-reset-all").onclick = async () => {
   }
 
   try {
-    // ✅ Hapus SEMUA data (tanpa filter)
-    await db.from("log_activity").delete();
-    await db.from("state_turnamen").delete();
-    await db.from("tim").delete();
-    await db.from("turnamen").delete();
+    // ✅ Hapus data dari ke-4 tabel ini saja secara spesifik
+    // (wajib menggunakan filter seperti .not('kolom', 'is', null) agar tidak ditolak oleh Supabase)
+    // Tabel club_roulette TIDAK akan disentuh/dihapus.
+    await db.from("log_activity").delete().not("timestamp", "is", null);
+    await db.from("state_turnamen").delete().not("turnamen_id", "is", null);
+    await db.from("tim").delete().not("turnamen_id", "is", null);
+    await db.from("turnamen").delete().not("nama", "is", null);
 
     // Reset state lokal
     state = {
