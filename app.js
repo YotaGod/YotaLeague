@@ -186,8 +186,14 @@ function generateBracket() {
   } else if (state.sistem === "double") {
     // Sebagai permulaan, double eliminasi disederhanakan
     // Jika tidak 4 atau 8 pemain, kita beri alert.
-    if (state.players.length !== 4 && state.players.length !== 8 && state.players.length !== 2) {
-      alert("⚠️ Double Eliminasi saat ini paling stabil untuk 2, 4, atau 8 pemain. Akan dialihkan ke Single Eliminasi.");
+    if (
+      state.players.length !== 4 &&
+      state.players.length !== 8 &&
+      state.players.length !== 2
+    ) {
+      alert(
+        "⚠️ Double Eliminasi saat ini paling stabil untuk 2, 4, atau 8 pemain. Akan dialihkan ke Single Eliminasi.",
+      );
       state.sistem = "single";
       generateSingleElimination();
     } else {
@@ -227,7 +233,7 @@ function generateSingleElimination() {
         isBye: false,
         nextMatchId: null,
         nextSlot: null, // 'A' atau 'B'
-        isLoserBracket: false
+        isLoserBracket: false,
       });
     }
   }
@@ -236,8 +242,9 @@ function generateSingleElimination() {
   for (let r = 1; r < totalRounds; r++) {
     for (let i = 0; i < matchesByRound[r].length; i++) {
       let nextMatchIndex = Math.floor(i / 2);
-      matchesByRound[r][i].nextMatchId = matchesByRound[r + 1][nextMatchIndex].id;
-      matchesByRound[r][i].nextSlot = (i % 2 === 0) ? 'A' : 'B';
+      matchesByRound[r][i].nextMatchId =
+        matchesByRound[r + 1][nextMatchIndex].id;
+      matchesByRound[r][i].nextSlot = i % 2 === 0 ? "A" : "B";
     }
   }
 
@@ -246,13 +253,13 @@ function generateSingleElimination() {
   for (let i = 0; i < matchesByRound[1].length; i++) {
     let m = matchesByRound[1][i];
     m.playerA = shuffled[playerIdx++];
-    
+
     // BYE diletakkan di akhir
     if (i >= matchesByRound[1].length - numByes) {
       m.playerB = { id: "bye", nama_tim: "(BYE)", nama_pemain: "BYE" };
       m.isBye = true;
       m.status = "completed";
-      m.scoreA = 1; 
+      m.scoreA = 1;
       m.scoreB = 0;
       m.winner = m.playerA;
       m.winnerId = m.playerA.id;
@@ -266,9 +273,11 @@ function generateSingleElimination() {
   }
 
   // Langsung majukan yang dapat BYE
-  state.matches.filter(m => m.isBye).forEach(m => {
-    advanceWinner(m);
-  });
+  state.matches
+    .filter((m) => m.isBye)
+    .forEach((m) => {
+      advanceWinner(m);
+    });
 }
 
 function generateDoubleElimination() {
@@ -276,7 +285,7 @@ function generateDoubleElimination() {
   const shuffled = [...state.players].sort(() => 0.5 - Math.random());
   state.matches = [];
   let numPlayers = shuffled.length;
-  
+
   if (numPlayers === 2) {
     // Sama saja dengan single
     generateSingleElimination();
@@ -289,92 +298,163 @@ function generateDoubleElimination() {
     round: round,
     roundName: roundName,
     matchIndex: state.matches.length,
-    playerA: null, playerB: null,
-    scoreA: null, scoreB: null,
-    winner: null, winnerId: null,
+    playerA: null,
+    playerB: null,
+    scoreA: null,
+    scoreB: null,
+    winner: null,
+    winnerId: null,
     status: "waiting",
-    nextMatchId: null, nextSlot: null,
-    nextLoserMatchId: null, nextLoserSlot: null,
+    nextMatchId: null,
+    nextSlot: null,
+    nextLoserMatchId: null,
+    nextLoserSlot: null,
     isLoserBracket: isLB,
-    isGrandFinal: roundName.includes("Grand Final")
+    isGrandFinal: roundName.includes("Grand Final"),
   });
 
   if (numPlayers === 4) {
-    let m1 = createMatch(1, "Upper Bracket Semi Final"); m1.status = "pending";
-    let m2 = createMatch(1, "Upper Bracket Semi Final"); m2.status = "pending";
+    let m1 = createMatch(1, "Upper Bracket Semi Final");
+    m1.status = "pending";
+    let m2 = createMatch(1, "Upper Bracket Semi Final");
+    m2.status = "pending";
     let m3 = createMatch(1, "Lower Bracket Ronde 1", true); // LB
     let m4 = createMatch(2, "Upper Bracket Final");
     let m5 = createMatch(2, "Lower Bracket Final", true);
     let m6 = createMatch(3, "Grand Final");
 
     // Pasangkan pemain
-    m1.playerA = shuffled[0]; m1.playerB = shuffled[1];
-    m2.playerA = shuffled[2]; m2.playerB = shuffled[3];
+    m1.playerA = shuffled[0];
+    m1.playerB = shuffled[1];
+    m2.playerA = shuffled[2];
+    m2.playerB = shuffled[3];
 
     // Hubungkan
-    m1.nextMatchId = m4.id; m1.nextSlot = 'A';
-    m2.nextMatchId = m4.id; m2.nextSlot = 'B';
-    m1.nextLoserMatchId = m3.id; m1.nextLoserSlot = 'A';
-    m2.nextLoserMatchId = m3.id; m2.nextLoserSlot = 'B';
+    m1.nextMatchId = m4.id;
+    m1.nextSlot = "A";
+    m2.nextMatchId = m4.id;
+    m2.nextSlot = "B";
+    m1.nextLoserMatchId = m3.id;
+    m1.nextLoserSlot = "A";
+    m2.nextLoserMatchId = m3.id;
+    m2.nextLoserSlot = "B";
 
-    m3.nextMatchId = m5.id; m3.nextSlot = 'A';
-    m4.nextMatchId = m6.id; m4.nextSlot = 'A';
-    m4.nextLoserMatchId = m5.id; m4.nextLoserSlot = 'B';
-    
-    m5.nextMatchId = m6.id; m5.nextSlot = 'B';
+    m3.nextMatchId = m5.id;
+    m3.nextSlot = "A";
+    m4.nextMatchId = m6.id;
+    m4.nextSlot = "A";
+    m4.nextLoserMatchId = m5.id;
+    m4.nextLoserSlot = "B";
+
+    m5.nextMatchId = m6.id;
+    m5.nextSlot = "B";
 
     state.matches.push(m1, m2, m3, m4, m5, m6);
   } else if (numPlayers === 8) {
-    let m1 = createMatch(1, "Upper Bracket Quarter Final"); m1.status = "pending"; m1.playerA = shuffled[0]; m1.playerB = shuffled[1];
-    let m2 = createMatch(1, "Upper Bracket Quarter Final"); m2.status = "pending"; m2.playerA = shuffled[2]; m2.playerB = shuffled[3];
-    let m3 = createMatch(1, "Upper Bracket Quarter Final"); m3.status = "pending"; m3.playerA = shuffled[4]; m3.playerB = shuffled[5];
-    let m4 = createMatch(1, "Upper Bracket Quarter Final"); m4.status = "pending"; m4.playerA = shuffled[6]; m4.playerB = shuffled[7];
-    
+    let m1 = createMatch(1, "Upper Bracket Quarter Final");
+    m1.status = "pending";
+    m1.playerA = shuffled[0];
+    m1.playerB = shuffled[1];
+    let m2 = createMatch(1, "Upper Bracket Quarter Final");
+    m2.status = "pending";
+    m2.playerA = shuffled[2];
+    m2.playerB = shuffled[3];
+    let m3 = createMatch(1, "Upper Bracket Quarter Final");
+    m3.status = "pending";
+    m3.playerA = shuffled[4];
+    m3.playerB = shuffled[5];
+    let m4 = createMatch(1, "Upper Bracket Quarter Final");
+    m4.status = "pending";
+    m4.playerA = shuffled[6];
+    m4.playerB = shuffled[7];
+
     let m5 = createMatch(1, "Lower Bracket Ronde 1", true);
     let m6 = createMatch(1, "Lower Bracket Ronde 1", true);
-    
+
     let m7 = createMatch(2, "Upper Bracket Semi Final");
     let m8 = createMatch(2, "Upper Bracket Semi Final");
-    
+
     let m9 = createMatch(2, "Lower Bracket Ronde 2", true);
     let m10 = createMatch(2, "Lower Bracket Ronde 2", true);
-    
+
     let m11 = createMatch(3, "Lower Bracket Semi Final", true);
-    
+
     let m12 = createMatch(3, "Lower Bracket Final");
-    
+
     let m13 = createMatch(4, "Lower Bracket Final", true);
-    
+
     let m14 = createMatch(4, "Grand Final");
 
     // WB R1 -> WB R2 & LB R1
-    m1.nextMatchId = m7.id; m1.nextSlot = 'A'; m1.nextLoserMatchId = m5.id; m1.nextLoserSlot = 'A';
-    m2.nextMatchId = m7.id; m2.nextSlot = 'B'; m2.nextLoserMatchId = m5.id; m2.nextLoserSlot = 'B';
-    m3.nextMatchId = m8.id; m3.nextSlot = 'A'; m3.nextLoserMatchId = m6.id; m3.nextLoserSlot = 'A';
-    m4.nextMatchId = m8.id; m4.nextSlot = 'B'; m4.nextLoserMatchId = m6.id; m4.nextLoserSlot = 'B';
+    m1.nextMatchId = m7.id;
+    m1.nextSlot = "A";
+    m1.nextLoserMatchId = m5.id;
+    m1.nextLoserSlot = "A";
+    m2.nextMatchId = m7.id;
+    m2.nextSlot = "B";
+    m2.nextLoserMatchId = m5.id;
+    m2.nextLoserSlot = "B";
+    m3.nextMatchId = m8.id;
+    m3.nextSlot = "A";
+    m3.nextLoserMatchId = m6.id;
+    m3.nextLoserSlot = "A";
+    m4.nextMatchId = m8.id;
+    m4.nextSlot = "B";
+    m4.nextLoserMatchId = m6.id;
+    m4.nextLoserSlot = "B";
 
     // LB R1 -> LB R2
-    m5.nextMatchId = m9.id; m5.nextSlot = 'A';
-    m6.nextMatchId = m10.id; m6.nextSlot = 'A';
+    m5.nextMatchId = m9.id;
+    m5.nextSlot = "A";
+    m6.nextMatchId = m10.id;
+    m6.nextSlot = "A";
 
     // WB R2 -> WB F & LB R2
-    m7.nextMatchId = m12.id; m7.nextSlot = 'A'; m7.nextLoserMatchId = m9.id; m7.nextLoserSlot = 'B';
-    m8.nextMatchId = m12.id; m8.nextSlot = 'B'; m8.nextLoserMatchId = m10.id; m8.nextLoserSlot = 'B';
+    m7.nextMatchId = m12.id;
+    m7.nextSlot = "A";
+    m7.nextLoserMatchId = m9.id;
+    m7.nextLoserSlot = "B";
+    m8.nextMatchId = m12.id;
+    m8.nextSlot = "B";
+    m8.nextLoserMatchId = m10.id;
+    m8.nextLoserSlot = "B";
 
     // LB R2 -> LB SF
-    m9.nextMatchId = m11.id; m9.nextSlot = 'A';
-    m10.nextMatchId = m11.id; m10.nextSlot = 'B';
+    m9.nextMatchId = m11.id;
+    m9.nextSlot = "A";
+    m10.nextMatchId = m11.id;
+    m10.nextSlot = "B";
 
     // LB SF -> LB F
-    m11.nextMatchId = m13.id; m11.nextSlot = 'A';
+    m11.nextMatchId = m13.id;
+    m11.nextSlot = "A";
 
     // WB F -> GF & LB F
-    m12.nextMatchId = m14.id; m12.nextSlot = 'A'; m12.nextLoserMatchId = m13.id; m12.nextLoserSlot = 'B';
+    m12.nextMatchId = m14.id;
+    m12.nextSlot = "A";
+    m12.nextLoserMatchId = m13.id;
+    m12.nextLoserSlot = "B";
 
     // LB F -> GF
-    m13.nextMatchId = m14.id; m13.nextSlot = 'B';
+    m13.nextMatchId = m14.id;
+    m13.nextSlot = "B";
 
-    state.matches.push(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14);
+    state.matches.push(
+      m1,
+      m2,
+      m3,
+      m4,
+      m5,
+      m6,
+      m7,
+      m8,
+      m9,
+      m10,
+      m11,
+      m12,
+      m13,
+      m14,
+    );
   }
 }
 
@@ -534,16 +614,18 @@ function smartShuffle(matches, players) {
 function advanceWinner(completedMatch) {
   // 1. Advance Winner
   if (completedMatch.nextMatchId) {
-    let nextMatch = state.matches.find(m => m.id === completedMatch.nextMatchId);
+    let nextMatch = state.matches.find(
+      (m) => m.id === completedMatch.nextMatchId,
+    );
     if (nextMatch) {
-      if (completedMatch.nextSlot === 'A') {
+      if (completedMatch.nextSlot === "A") {
         nextMatch.playerA = completedMatch.winner;
         nextMatch.winnerIdA = completedMatch.winnerId;
       } else {
         nextMatch.playerB = completedMatch.winner;
         nextMatch.winnerIdB = completedMatch.winnerId;
       }
-      
+
       if (nextMatch.playerA && nextMatch.playerB && !nextMatch.isBye) {
         nextMatch.status = "pending";
       }
@@ -552,15 +634,20 @@ function advanceWinner(completedMatch) {
 
   // 2. Advance Loser (khusus Double Elimination)
   if (completedMatch.nextLoserMatchId) {
-    let loser = (completedMatch.winnerId === completedMatch.playerA.id) ? completedMatch.playerB : completedMatch.playerA;
-    let nextLoserMatch = state.matches.find(m => m.id === completedMatch.nextLoserMatchId);
+    let loser =
+      completedMatch.winnerId === completedMatch.playerA.id
+        ? completedMatch.playerB
+        : completedMatch.playerA;
+    let nextLoserMatch = state.matches.find(
+      (m) => m.id === completedMatch.nextLoserMatchId,
+    );
     if (nextLoserMatch && loser) {
-      if (completedMatch.nextLoserSlot === 'A') {
+      if (completedMatch.nextLoserSlot === "A") {
         nextLoserMatch.playerA = loser;
       } else {
         nextLoserMatch.playerB = loser;
       }
-      
+
       if (nextLoserMatch.playerA && nextLoserMatch.playerB) {
         nextLoserMatch.status = "pending";
       }
@@ -691,7 +778,9 @@ function renderRoundRobin() {
   const waitingMatches = state.matches.filter((m) => m.status === "waiting");
 
   // Cek apakah Leg 2 sudah dimulai
-  const leg2Started = state.matches.some((m) => m.leg === 2 && m.status !== "waiting");
+  const leg2Started = state.matches.some(
+    (m) => m.leg === 2 && m.status !== "waiting",
+  );
 
   // Jika Leg 2 sudah dimulai, filter untuk hanya tampilkan Leg 2 saja
   let displayMatches = pendingMatches;
@@ -772,8 +861,14 @@ function renderRoundRobin() {
         );
 
         if (leg1Match) {
-          let scoreA = leg1Match.playerA.id === m.playerA.id ? leg1Match.scoreA : leg1Match.scoreB;
-          let scoreB = leg1Match.playerA.id === m.playerA.id ? leg1Match.scoreB : leg1Match.scoreA;
+          let scoreA =
+            leg1Match.playerA.id === m.playerA.id
+              ? leg1Match.scoreA
+              : leg1Match.scoreB;
+          let scoreB =
+            leg1Match.playerA.id === m.playerA.id
+              ? leg1Match.scoreB
+              : leg1Match.scoreA;
           matchHTML += `<div class="leg-info">Leg 1: ${scoreA} - ${scoreB}</div>`;
         }
       }
@@ -781,7 +876,7 @@ function renderRoundRobin() {
       matchHTML += `<div class="leg-label">Leg ${m.leg} (Pending)</div>`;
       matchHTML += `<div class="main-score">- : -</div>`;
       matchHTML += `</div>`;
-      
+
       matchHTML += `<small class="click-hint">Klik untuk input skor Leg ${m.leg}</small>`;
 
       matchDiv.innerHTML = matchHTML;
@@ -802,7 +897,7 @@ function renderRoundRobin() {
       matchDiv.className = `match completed ${m.leg === 2 ? "leg2-match" : ""}`;
 
       let matchHTML = "";
-      
+
       let aggScoreA = m.scoreA;
       let aggScoreB = m.scoreB;
       let hasLeg1 = false;
@@ -821,9 +916,15 @@ function renderRoundRobin() {
 
         if (leg1Match) {
           hasLeg1 = true;
-          let scoreA = leg1Match.playerA.id === m.playerA.id ? leg1Match.scoreA : leg1Match.scoreB;
-          let scoreB = leg1Match.playerA.id === m.playerA.id ? leg1Match.scoreB : leg1Match.scoreA;
-          
+          let scoreA =
+            leg1Match.playerA.id === m.playerA.id
+              ? leg1Match.scoreA
+              : leg1Match.scoreB;
+          let scoreB =
+            leg1Match.playerA.id === m.playerA.id
+              ? leg1Match.scoreB
+              : leg1Match.scoreA;
+
           leg1Str = `Leg 1: ${scoreA} - ${scoreB}`;
           aggScoreA += scoreA;
           aggScoreB += scoreB;
@@ -846,7 +947,7 @@ function renderRoundRobin() {
       } else {
         matchHTML += `<div class="leg-label">Leg 1 (Selesai)</div>`;
       }
-      
+
       matchHTML += `<div class="main-score">${aggScoreA} : ${aggScoreB}</div>`;
       matchHTML += `</div>`;
 
@@ -863,15 +964,15 @@ function renderEliminationBracket() {
   const maxRound = Math.max(...state.matches.map((m) => m.round));
 
   // Pisahkan WB dan LB
-  const wbMatches = state.matches.filter(m => !m.isLoserBracket);
-  const lbMatches = state.matches.filter(m => m.isLoserBracket);
+  const wbMatches = state.matches.filter((m) => !m.isLoserBracket);
+  const lbMatches = state.matches.filter((m) => m.isLoserBracket);
 
   const renderGroup = (matches, titlePrefix) => {
     if (matches.length === 0) return;
-    
+
     // Group by round
     const rounds = {};
-    matches.forEach(m => {
+    matches.forEach((m) => {
       if (!rounds[m.round]) rounds[m.round] = [];
       rounds[m.round].push(m);
     });
@@ -898,32 +999,37 @@ function renderEliminationBracket() {
     flexContainer.style.justifyContent = "center";
     flexContainer.style.flexWrap = "wrap";
 
-    Object.keys(rounds).sort((a,b) => a-b).forEach(r => {
-      const roundDiv = document.createElement("div");
-      roundDiv.className = "round";
+    Object.keys(rounds)
+      .sort((a, b) => a - b)
+      .forEach((r) => {
+        const roundDiv = document.createElement("div");
+        roundDiv.className = "round";
 
-      // Gunakan roundName jika ada (untuk double elim), jika tidak gunakan Ronde X
-      const sampleMatch = rounds[r][0];
-      const roundName = sampleMatch.roundName || (r == maxRound ? "Final" : `Ronde ${r}`);
-      
-      roundDiv.innerHTML = `<h4>${roundName}</h4>`;
+        // Gunakan roundName jika ada (untuk double elim), jika tidak gunakan Ronde X
+        const sampleMatch = rounds[r][0];
+        const roundName =
+          sampleMatch.roundName || (r == maxRound ? "Final" : `Ronde ${r}`);
 
-      rounds[r].forEach((m) => {
-        // Jangan tampilkan BYE di UI secara eksplisit agar lebih rapi, kecuali jika belum selesai
-        if (m.isBye && state.sistem === "single") return;
+        roundDiv.innerHTML = `<h4>${roundName}</h4>`;
 
-        const matchDiv = document.createElement("div");
-        matchDiv.className = `match ${m.status} ${m.winner ? "completed" : ""}`;
+        rounds[r].forEach((m) => {
+          // Jangan tampilkan BYE di UI secara eksplisit agar lebih rapi, kecuali jika belum selesai
+          if (m.isBye && state.sistem === "single") return;
 
-        const playerAName = m.playerA ? m.playerA.nama_tim : "TBD";
-        const playerBName = m.playerB ? m.playerB.nama_tim : "TBD";
-        const scoreA = m.scoreA !== null ? m.scoreA : "-";
-        const scoreB = m.scoreB !== null ? m.scoreB : "-";
-        
-        const winnerA = m.winnerId && m.winnerId === m.playerA?.id ? "winner" : "";
-        const winnerB = m.winnerId && m.winnerId === m.playerB?.id ? "winner" : "";
+          const matchDiv = document.createElement("div");
+          matchDiv.className = `match ${m.status} ${m.winner ? "completed" : ""}`;
 
-        matchDiv.innerHTML = `
+          const playerAName = m.playerA ? m.playerA.nama_tim : "TBD";
+          const playerBName = m.playerB ? m.playerB.nama_tim : "TBD";
+          const scoreA = m.scoreA !== null ? m.scoreA : "-";
+          const scoreB = m.scoreB !== null ? m.scoreB : "-";
+
+          const winnerA =
+            m.winnerId && m.winnerId === m.playerA?.id ? "winner" : "";
+          const winnerB =
+            m.winnerId && m.winnerId === m.playerB?.id ? "winner" : "";
+
+          matchDiv.innerHTML = `
           <div class="match-teams-header">
             <div class="team-name ${winnerA}">${playerAName}</div>
             <div class="vs-badge">VS</div>
@@ -936,18 +1042,19 @@ function renderEliminationBracket() {
           ${m.status === "waiting" ? '<small class="waiting">Menunggu...</small>' : ""}
         `;
 
-        if (m.status === "pending") {
-          matchDiv.onclick = () => openScoreModal(m.id);
-        }
+          if (m.status === "pending") {
+            matchDiv.onclick = () => openScoreModal(m.id);
+          }
 
-        roundDiv.appendChild(matchDiv);
+          roundDiv.appendChild(matchDiv);
+        });
+
+        if (roundDiv.children.length > 1) {
+          // Lebih dari sekedar <h4>
+          flexContainer.appendChild(roundDiv);
+        }
       });
-      
-      if (roundDiv.children.length > 1) { // Lebih dari sekedar <h4>
-        flexContainer.appendChild(roundDiv);
-      }
-    });
-    
+
     groupDiv.appendChild(flexContainer);
     bracketContainer.appendChild(groupDiv);
   };
@@ -983,11 +1090,17 @@ function openScoreModal(matchId) {
     );
 
     if (leg1Match) {
-      let scoreA = leg1Match.playerA.id === m.playerA.id ? leg1Match.scoreA : leg1Match.scoreB;
-      let scoreB = leg1Match.playerA.id === m.playerA.id ? leg1Match.scoreB : leg1Match.scoreA;
+      let scoreA =
+        leg1Match.playerA.id === m.playerA.id
+          ? leg1Match.scoreA
+          : leg1Match.scoreB;
+      let scoreB =
+        leg1Match.playerA.id === m.playerA.id
+          ? leg1Match.scoreB
+          : leg1Match.scoreA;
       const teamAWon = scoreA > scoreB;
       const teamBWon = scoreB > scoreA;
-      
+
       leg1Info = `
         <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 6px; padding: 10px; margin: 10px 0; font-size: 0.85em;">
           <div style="font-size: 0.75em; font-weight: bold; color: var(--accent); margin-bottom: 6px; opacity: 0.9;">📊 HASIL LEG 1</div>
@@ -1297,7 +1410,10 @@ async function resetTournament() {
   try {
     // Hapus data turnamen saat ini dari database
     await db.from("log_activity").delete().eq("turnamen_nama", state.nama);
-    await db.from("state_turnamen").delete().eq("turnamen_id", state.turnamenId);
+    await db
+      .from("state_turnamen")
+      .delete()
+      .eq("turnamen_id", state.turnamenId);
     await db.from("tim").delete().eq("turnamen_id", state.turnamenId);
     await db.from("turnamen").delete().eq("id", state.turnamenId);
 
@@ -1310,23 +1426,23 @@ async function resetTournament() {
 }
 
 function goBackToSetup() {
-    state = {
-      turnamenId: null,
-      nama: "",
-      sistem: "single",
-      rrType: null,
-      players: [],
-      matches: [],
-      logs: [],
-      standings: [],
-    };
+  state = {
+    turnamenId: null,
+    nama: "",
+    sistem: "single",
+    rrType: null,
+    players: [],
+    matches: [],
+    logs: [],
+    standings: [],
+  };
 
-    render();
-    setupSection.classList.remove("hidden");
-    bracketSection.classList.add("hidden");
-    document.getElementById("setup-form").reset();
-    playersInputs.innerHTML = "";
-    currentMatchId = null;
+  render();
+  setupSection.classList.remove("hidden");
+  bracketSection.classList.add("hidden");
+  document.getElementById("setup-form").reset();
+  playersInputs.innerHTML = "";
+  currentMatchId = null;
 }
 
 if (btnKembali) {
@@ -1376,4 +1492,327 @@ function checkAndActivateLeg2() {
       }
     });
   }
+}
+
+// ==========================================
+// CLUB ROULETTE FEATURE
+// ==========================================
+
+const btnRoulette = document.getElementById("btn-roulette");
+const categoryModal = document.getElementById("roulette-category-modal");
+const cameraModal = document.getElementById("roulette-camera-modal");
+const closeCategoryModal = document.getElementById("close-category-modal");
+const closeCameraModal = document.getElementById("close-camera-modal");
+const rouletteVideo = document.getElementById("roulette-video");
+const faceIndicator = document.getElementById("face-indicator");
+const noFaceWarning = document.getElementById("no-face-warning");
+const rouletteSpinner = document.getElementById("roulette-spinner");
+const rouletteResult = document.getElementById("roulette-result");
+const rouletteStatus = document.getElementById("roulette-status");
+const spinnerLogo = document.getElementById("spinner-logo");
+const spinnerName = document.getElementById("spinner-name");
+const resultLogo = document.getElementById("result-logo");
+const resultName = document.getElementById("result-name");
+const resultCategory = document.getElementById("result-category");
+
+let rouletteClubs = [];
+let selectedCategory = "";
+let faceDetected = false;
+let isRouletteSpinning = false;
+let rouletteInterval = null;
+let faceDetectionInterval = null;
+let stream = null;
+
+function clearRouletteTimers() {
+  if (rouletteInterval) {
+    clearInterval(rouletteInterval);
+    rouletteInterval = null;
+  }
+  if (faceDetectionInterval) {
+    clearInterval(faceDetectionInterval);
+    faceDetectionInterval = null;
+  }
+}
+
+// Buka modal kategori
+if (btnRoulette) {
+  btnRoulette.addEventListener("click", () => {
+    categoryModal.classList.remove("hidden");
+  });
+}
+
+// Tutup modal kategori
+if (closeCategoryModal) {
+  closeCategoryModal.addEventListener("click", () => {
+    categoryModal.classList.add("hidden");
+  });
+}
+
+// Pilih kategori
+document.querySelectorAll(".category-btn").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    selectedCategory = btn.dataset.category;
+    categoryModal.classList.add("hidden");
+
+    // Load clubs dari Supabase
+    rouletteStatus.textContent = "Memuat klub...";
+    await loadClubsForCategory(selectedCategory);
+
+    if (rouletteClubs.length === 0) {
+      alert(
+        "Tidak ada Tim ditemukan untuk kategori ini. Tambahkan data di Supabase Dashboard.",
+      );
+      return;
+    }
+
+    // Buka modal kamera
+    await openCameraModal();
+  });
+});
+
+// Load clubs dari Supabase
+async function loadClubsForCategory(category) {
+  try {
+    let query = db.from("club_roulette").select("*");
+
+    if (category !== "All") {
+      query = query.eq("kategori", category);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    rouletteClubs = data || [];
+
+    console.log(`Loaded ${rouletteClubs.length} clubs for ${category}`);
+  } catch (error) {
+    console.error("Error loading clubs:", error);
+    rouletteClubs = [];
+  }
+}
+
+// Buka modal kamera
+async function openCameraModal() {
+  clearRouletteTimers();
+  isRouletteSpinning = false;
+
+  cameraModal.classList.remove("hidden");
+  rouletteSpinner.classList.add("hidden");
+  rouletteSpinner.classList.remove("is-spinning");
+  rouletteResult.classList.add("hidden");
+  faceIndicator.classList.add("hidden");
+  noFaceWarning.classList.add("hidden");
+  rouletteStatus.textContent = "Mengaktifkan kamera...";
+  faceDetected = false;
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: "user",
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+      },
+    });
+    rouletteVideo.srcObject = stream;
+
+    // Load face-api.js models
+    rouletteStatus.textContent = "Memuat model deteksi wajah...";
+    await loadFaceApiModels();
+
+    // Mulai deteksi wajah
+    startFaceDetection();
+  } catch (error) {
+    console.error("Camera error:", error);
+    rouletteStatus.textContent =
+      "Gagal mengakses kamera. Pastikan izin kamera diberikan.";
+    noFaceWarning.textContent =
+      "❌ Gagal mengakses kamera. Periksa izin browser.";
+    noFaceWarning.classList.remove("hidden");
+  }
+}
+
+// Load face-api.js models dari CDN
+async function loadFaceApiModels() {
+  // Cek apakah face-api.js sudah dimuat
+  if (typeof faceapi === "undefined") {
+    // Load script dari CDN
+    await new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src =
+        "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js";
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  // Load model tiny face detector
+  const MODEL_URL =
+    "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model";
+
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    rouletteStatus.textContent = "Model siap. Tunjukkan wajah ke kamera!";
+  } catch (error) {
+    console.error("Model load error:", error);
+    rouletteStatus.textContent = "Gagal memuat model. Coba refresh halaman.";
+  }
+}
+
+// Mulai deteksi wajah
+function startFaceDetection() {
+  if (faceDetectionInterval) {
+    clearInterval(faceDetectionInterval);
+    faceDetectionInterval = null;
+  }
+
+  let noFaceTimeout = setTimeout(() => {
+    if (!faceDetected) {
+      noFaceWarning.classList.remove("hidden");
+      rouletteStatus.textContent =
+        "Tidak ada wajah terdeteksi selama 5 detik.";
+    }
+  }, 5000);
+
+  faceDetectionInterval = setInterval(async () => {
+    if (typeof faceapi === "undefined") return;
+
+    try {
+      const detections = await faceapi.detectAllFaces(
+        rouletteVideo,
+        new faceapi.TinyFaceDetectorOptions(),
+      );
+
+      if (detections.length > 0 && !faceDetected) {
+        faceDetected = true;
+        clearTimeout(noFaceTimeout);
+        faceIndicator.classList.remove("hidden");
+        rouletteStatus.textContent = "Wajah terdeteksi! Memulai roulette...";
+
+        // Mulai animasi roulette setelah delay singkat
+        setTimeout(() => {
+          startRouletteAnimation();
+        }, 500);
+
+        // Hentikan deteksi wajah (sudah tidak perlu)
+        clearInterval(faceDetectionInterval);
+      }
+    } catch (error) {
+      console.error("Detection error:", error);
+    }
+  }, 200);
+}
+
+// Animasi roulette
+function startRouletteAnimation() {
+  if (isRouletteSpinning || rouletteClubs.length === 0) return;
+
+  clearRouletteTimers();
+  isRouletteSpinning = true;
+
+  rouletteSpinner.classList.remove("hidden");
+  rouletteSpinner.classList.add("is-spinning");
+  rouletteResult.classList.add("hidden");
+  rouletteStatus.textContent = "🎰 Roulette berputar...";
+
+  let spinCount = 0;
+  const totalSpins = 20;
+  const spinIntervalMs = 100;
+
+  rouletteInterval = setInterval(() => {
+    const randomClub =
+      rouletteClubs[Math.floor(Math.random() * rouletteClubs.length)];
+    if (!randomClub) return;
+
+    displayClubInSpinner(randomClub);
+    spinCount++;
+
+    if (spinCount >= totalSpins) {
+      clearRouletteTimers();
+      isRouletteSpinning = false;
+
+      const finalClub =
+        rouletteClubs[Math.floor(Math.random() * rouletteClubs.length)];
+      setTimeout(() => {
+        if (finalClub) displayResult(finalClub);
+        else rouletteStatus.textContent = "Gagal memilih klub. Coba lagi.";
+      }, 300);
+    }
+  }, spinIntervalMs);
+}
+
+// Tampilkan klub di spinner
+function displayClubInSpinner(club) {
+  if (!club) return;
+
+  if (club.logo_url) {
+    spinnerLogo.innerHTML = `<img src="${club.logo_url}" alt="${club.nama}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
+  } else {
+    // Placeholder dengan inisial
+    const initials = club.nama.substring(0, 2).toUpperCase();
+    const bgColor = getRandomColor();
+    spinnerLogo.innerHTML = `<div class="logo-placeholder" style="background:${bgColor}">${initials}</div>`;
+  }
+  spinnerName.textContent = club.nama;
+}
+
+// Tampilkan hasil akhir
+function displayResult(club) {
+  if (!club) return;
+
+  isRouletteSpinning = false;
+  rouletteSpinner.classList.remove("is-spinning");
+  rouletteSpinner.classList.add("hidden");
+  rouletteResult.classList.remove("hidden");
+  rouletteStatus.textContent = "";
+
+  if (club.logo_url) {
+    resultLogo.innerHTML = `<img src="${club.logo_url}" alt="${club.nama}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
+  } else {
+    const initials = club.nama.substring(0, 2).toUpperCase();
+    const bgColor = getRandomColor();
+    resultLogo.innerHTML = `<div class="logo-placeholder" style="background:${bgColor}">${initials}</div>`;
+  }
+
+  resultName.textContent = club.nama;
+  resultCategory.textContent = club.kategori;
+}
+
+// Warna random untuk placeholder
+function getRandomColor() {
+  const colors = [
+    "#e74c3c",
+    "#3498db",
+    "#2ecc71",
+    "#f39c12",
+    "#9b59b6",
+    "#1abc9c",
+    "#e67e22",
+    "#34495e",
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Tutup modal kamera
+function handleCloseCameraModal() {
+  cameraModal.classList.add("hidden");
+
+  clearRouletteTimers();
+  isRouletteSpinning = false;
+  rouletteSpinner.classList.remove("is-spinning");
+
+  // Hentikan stream kamera
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+    stream = null;
+  }
+
+  // Reset state
+  faceDetected = false;
+  rouletteClubs = [];
+  selectedCategory = "";
+}
+
+if (closeCameraModal) {
+  closeCameraModal.addEventListener("click", handleCloseCameraModal);
 }

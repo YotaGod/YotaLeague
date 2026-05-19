@@ -63,6 +63,71 @@
         </div>
         </div>
         
+        <!-- ✅ TOMBOL CLUB ROULETTE -->
+      <div class="roulette-trigger">
+        <button type="button" id="btn-roulette" class="roulette-btn">
+          🎰 Club Roulette
+        </button>
+        <small class="roulette-hint">Acak tim secara fun dengan deteksi wajah!</small>
+      </div>
+
+      <!-- Modal Pilih Kategori -->
+      <div id="roulette-category-modal" class="modal hidden">
+        <div class="modal-content roulette-modal">
+          <h3> Pilih Kategori</h3>
+          <div class="category-options">
+            <button class="category-btn" data-category="Premier League">
+              <span class="cat-icon">󠁧󠁢󠁥󠁮󠁿</span>
+              <span>Premier League</span>
+            </button>
+            <button class="category-btn" data-category="La Liga">
+              <span class="cat-icon">🇪🇸</span>
+              <span>La Liga</span>
+            </button>
+            <button class="category-btn" data-category="Serie A">
+              <span class="cat-icon">🇮🇹</span>
+              <span>Serie A</span>
+            </button>
+            <button class="category-btn" data-category="Nation">
+              <span class="cat-icon">🌍</span>
+              <span>Nation</span>
+            </button>
+            <button class="category-btn" data-category="All">
+              <span class="cat-icon">🌐</span>
+              <span>All</span>
+            </button>
+          </div>
+          <button id="close-category-modal" class="secondary" style="margin-top: 15px;">Batal</button>
+        </div>
+      </div>
+
+      <!-- Modal Kamera & Roulette -->
+      <div id="roulette-camera-modal" class="modal hidden">
+        <div class="modal-content roulette-camera-modal">
+          <div class="camera-container">
+            <video id="roulette-video" autoplay playsinline></video>
+            <div id="face-indicator" class="face-indicator hidden">👤 Wajah Terdeteksi!</div>
+            <div id="no-face-warning" class="no-face-warning hidden">
+              ️ Tidak ada wajah terdeteksi. Pastikan kamera aktif dan wajah Anda terlihat.
+            </div>
+          </div>
+          <div id="roulette-display" class="roulette-display">
+            <div id="roulette-spinner" class="roulette-spinner hidden">
+              <div id="spinner-logo" class="spinner-logo"></div>
+              <div id="spinner-name" class="spinner-name">...</div>
+            </div>
+            <div id="roulette-result" class="roulette-result hidden">
+              <div class="result-label">🎉 Klub Terpilih!</div>
+              <div id="result-logo" class="result-logo"></div>
+              <div id="result-name" class="result-name"></div>
+              <div id="result-category" class="result-category"></div>
+            </div>
+            <div id="roulette-status" class="roulette-status">Memilih kategori...</div>
+          </div>
+          <button id="close-camera-modal" class="danger" style="margin-top: 15px;">Tutup</button>
+        </div>
+      </div>
+
         <input type="number" id="player-count" placeholder="Jumlah Pemain" min="2" required>
         <div id="players-inputs"></div>
         <button type="submit">Buat & Mulai</button>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Teko:wght@500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Teko:wght@500;600;700&display=swap");
 
 :root {
   --bg: #090e17;
@@ -18,15 +18,18 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Outfit', system-ui, sans-serif;
+  font-family: "Outfit", system-ui, sans-serif;
 }
 body {
   background: var(--bg);
-  background-image: 
+  background-image:
     radial-gradient(circle at 50% 0%, #162032 0%, transparent 50%),
     linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 30px 30px, 30px 30px;
+  background-size:
+    100% 100%,
+    30px 30px,
+    30px 30px;
   color: var(--text);
   padding: 20px;
   min-height: 100vh;
@@ -41,7 +44,7 @@ header {
 }
 h1 {
   color: var(--text);
-  font-family: 'Teko', sans-serif;
+  font-family: "Teko", sans-serif;
   font-size: 2.5rem;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -165,13 +168,13 @@ button[type="submit"] {
   border: 1px solid var(--border);
   border-radius: 10px;
   min-width: 260px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 .round h4 {
   margin-bottom: 15px;
   text-align: center;
   color: var(--accent);
-  font-family: 'Teko', sans-serif;
+  font-family: "Teko", sans-serif;
   font-size: 1.5rem;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -188,9 +191,12 @@ button[type="submit"] {
   overflow: hidden;
 }
 .match::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0; width: 4px; height: 100%;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
   background: var(--border);
 }
 .match.completed::before {
@@ -207,7 +213,7 @@ button[type="submit"] {
   background: var(--card-hover);
   border-color: #3b4b6b;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 #log-list {
@@ -293,7 +299,7 @@ button[type="submit"] {
 }
 
 .vs-badge {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -310,7 +316,7 @@ button[type="submit"] {
 }
 
 .main-score {
-  font-family: 'Teko', sans-serif;
+  font-family: "Teko", sans-serif;
   font-size: 2.2rem;
   font-weight: 600;
   letter-spacing: 2px;
@@ -322,7 +328,7 @@ button[type="submit"] {
 .leg-info {
   font-size: 0.85rem;
   color: var(--text-muted);
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   padding: 2px 10px;
   border-radius: 4px;
   margin-bottom: 4px;
@@ -647,4 +653,289 @@ button[type="submit"] {
 
 #btn-start-leg2:hover {
   box-shadow: 0 6px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* ==========================================
+   CLUB ROULETTE STYLES
+   ========================================== */
+
+.roulette-trigger {
+  text-align: center;
+  margin: 15px 0 5px;
+  padding: 15px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 42, 95, 0.1),
+    rgba(0, 240, 255, 0.1)
+  );
+  border: 1px dashed var(--accent);
+  border-radius: 10px;
+}
+
+.roulette-btn {
+  background: linear-gradient(135deg, var(--danger), #ff6b35);
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  font-size: 1.1em;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 42, 95, 0.3);
+}
+
+.roulette-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 42, 95, 0.5);
+}
+
+.roulette-hint {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.8em;
+}
+
+/* Category Modal */
+.roulette-modal {
+  max-width: 500px;
+}
+
+.roulette-modal h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--accent);
+  font-family: "Teko", sans-serif;
+  font-size: 1.8rem;
+}
+
+.category-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.category-btn {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  color: var(--text);
+  padding: 15px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-btn:hover {
+  border-color: var(--accent);
+  background: rgba(0, 240, 255, 0.1);
+  transform: translateY(-3px);
+}
+
+.category-btn .cat-icon {
+  font-size: 2em;
+}
+
+.category-btn span:last-child {
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+/* Camera Modal */
+.roulette-camera-modal {
+  max-width: 450px;
+  padding: 20px;
+}
+
+.camera-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+#roulette-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.face-indicator {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 230, 118, 0.9);
+  color: #000;
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  animation: pulse 1s infinite;
+}
+
+.no-face-warning {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 42, 95, 0.9);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  text-align: center;
+  width: 90%;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Roulette Display */
+.roulette-display {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.roulette-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  font-weight: bold;
+  color: var(--accent);
+  border: 3px solid var(--accent);
+}
+
+/* Hanya berputar saat animasi JS aktif (bukan selamanya) */
+.roulette-spinner.is-spinning .spinner-logo {
+  animation: spin 0.3s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.spinner-name {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: var(--text);
+  text-align: center;
+}
+
+.roulette-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: resultPop 0.5s ease-out;
+}
+
+@keyframes resultPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.result-label {
+  font-size: 1.2em;
+  color: var(--success);
+  font-weight: bold;
+}
+
+.result-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5em;
+  font-weight: bold;
+  color: var(--accent);
+  border: 4px solid var(--success);
+  box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
+}
+
+.result-logo img {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+}
+
+.result-name {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: var(--text);
+  text-align: center;
+}
+
+.result-category {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.roulette-status {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Placeholder logo styling */
+.logo-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 1.5em;
 }
