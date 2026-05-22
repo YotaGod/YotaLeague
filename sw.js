@@ -20,8 +20,13 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Intercept jaringan menggunakan strategi Network-First
+// Intercept jaringan menggunakan strategi Network-First (Hanya untuk GET)
 self.addEventListener("fetch", (event) => {
+  // Jangan intercept request POST, PATCH, dll (seperti API Supabase) karena Cache API tidak mendukungnya
+  if (event.request.method !== "GET") {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
