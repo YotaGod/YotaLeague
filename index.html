@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <!-- Supabase SDK via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
   <header>
@@ -162,6 +163,42 @@
       </div>
       <button id="confirm-score">Simpan</button>
       <button id="close-modal" class="secondary">Batal</button>
+    </div>
+  </div>
+
+  <!-- Modal Share Match -->
+  <div id="share-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 500px; background: transparent; box-shadow: none;">
+      <!-- Kartu grafis yang akan di-screenshot -->
+      <div id="share-graphic-card" class="share-graphic-card">
+        <div class="share-header">
+          <img src="favicon.ico" alt="Logo" class="share-logo" onerror="this.style.display='none'">
+          <h2 id="share-tournament-name">YOTA LEAGUE</h2>
+        </div>
+        <div class="share-match-stage" id="share-match-stage">FINAL</div>
+        
+        <div class="share-teams">
+          <div class="share-team">
+            <div id="share-team-a" class="share-team-name">TIM A</div>
+            <div id="share-player-a" class="share-player-name">Pemain A</div>
+          </div>
+          <div class="share-score" id="share-score">0 - 0</div>
+          <div class="share-team">
+            <div id="share-team-b" class="share-team-name">TIM B</div>
+            <div id="share-player-b" class="share-player-name">Pemain B</div>
+          </div>
+        </div>
+
+        <div class="share-footer" id="share-aggregate-info">
+          <!-- Info agregat untuk leg 2 akan muncul di sini -->
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px; text-align: center; background: #1a1f2c; padding: 20px; border-radius: 12px;">
+        <p style="margin-bottom: 15px; color: #a0aec0; font-size: 14px;">Pratinjau Hasil Pertandingan</p>
+        <button id="btn-download-share" style="width: 100%; margin-bottom: 10px;">Bagikan / Download</button>
+        <button id="close-share-modal" class="secondary" style="width: 100%;">Tutup</button>
+      </div>
     </div>
   </div>
 

@@ -972,8 +972,10 @@ function renderRoundRobin() {
 
       matchHTML += `<div class="main-score">${aggScoreA} : ${aggScoreB}</div>`;
       matchHTML += `</div>`;
+      matchHTML += `<small class="click-hint">Klik untuk bagikan hasil (Poster)</small>`;
 
       matchDiv.innerHTML = matchHTML;
+      matchDiv.onclick = () => openShareModal(m.id);
       matchesDiv.appendChild(matchDiv);
     });
   }
@@ -1066,6 +1068,9 @@ function renderEliminationBracket() {
 
           if (m.status === "pending") {
             matchDiv.onclick = () => openScoreModal(m.id);
+          } else if (m.status === "completed") {
+            matchDiv.innerHTML += '<small class="click-hint" style="margin-top: 5px;">Klik untuk bagikan hasil (Poster)</small>';
+            matchDiv.onclick = () => openShareModal(m.id);
           }
 
           roundDiv.appendChild(matchDiv);
@@ -1841,4 +1846,122 @@ function handleCloseCameraModal() {
 
 if (closeCameraModal) {
   closeCameraModal.addEventListener("click", handleCloseCameraModal);
+}
+
+// ==========================================
+// FITUR SHARE MATCH RESULT
+// ==========================================
+const shareModal = document.getElementById("share-modal");
+const closeShareModal = document.getElementById("close-share-modal");
+const btnDownloadShare = document.getElementById("btn-download-share");
+
+function openShareModal(matchId) {
+  const m = state.matches.find(x => x.id === matchId);
+  if (!m || m.status !== "completed") return;
+
+  // Populate data
+  document.getElementById("share-tournament-name").innerText = state.nama.toUpperCase();
+  
+  // Format the round stage display
+  let stageText = "HASIL PERTANDINGAN";
+  if (m.round) {
+    if (typeof m.round === "number") {
+      stageText = `MATCHDAY ${m.round}`;
+    } else {
+      stageText = String(m.round).toUpperCase();
+    }
+  }
+  document.getElementById("share-match-stage").innerText = stageText;
+
+  let scoreA = m.scoreA;
+  let scoreB = m.scoreB;
+  let aggText = "";
+
+  // Jika Round Robin Double Leg dan ini adalah match leg 2
+  if (state.sistem === "round_robin" && state.rrType === "double" && m.leg === 2) {
+    const leg1Match = state.matches.find(match =>
+      match.leg === 1 &&
+      ((match.playerA.id === m.playerA.id && match.playerB.id === m.playerB.id) ||
+      (match.playerA.id === m.playerB.id && match.playerB.id === m.playerA.id)) &&
+      match.status === "completed"
+    );
+    if (leg1Match) {
+      let l1A = leg1Match.playerA.id === m.playerA.id ? leg1Match.scoreA : leg1Match.scoreB;
+      let l1B = leg1Match.playerA.id === m.playerA.id ? leg1Match.scoreB : leg1Match.scoreA;
+      scoreA += l1A;
+      scoreB += l1B;
+      aggText = `Leg 1: ${l1A}-${l1B} | Leg 2: ${m.scoreA}-${m.scoreB}`;
+    }
+  }
+
+  document.getElementById("share-team-a").innerText = m.playerA.nama_tim;
+  document.getElementById("share-player-a").innerText = m.playerA.nama_pemain;
+  document.getElementById("share-team-b").innerText = m.playerB.nama_tim;
+  document.getElementById("share-player-b").innerText = m.playerB.nama_pemain;
+  document.getElementById("share-score").innerText = `${scoreA} - ${scoreB}`;
+
+  const aggInfo = document.getElementById("share-aggregate-info");
+  if (aggText) {
+    aggInfo.innerText = aggText;
+    aggInfo.style.display = "inline-block";
+  } else {
+    aggInfo.style.display = "none";
+  }
+
+  shareModal.classList.remove("hidden");
+}
+
+if (closeShareModal) {
+  closeShareModal.onclick = () => shareModal.classList.add("hidden");
+}
+
+if (btnDownloadShare) {
+  btnDownloadShare.onclick = async () => {
+    const card = document.getElementById("share-graphic-card");
+    const originalBtnText = btnDownloadShare.innerText;
+    btnDownloadShare.innerText = "Memproses...";
+    btnDownloadShare.disabled = true;
+
+    try {
+      const canvas = await html2canvas(card, {
+        scale: 3,
+        backgroundColor: "#0f172a",
+        logging: false,
+        useCORS: true
+      });
+      
+      const imageURI = canvas.toDataURL("image/png");
+      
+      // Jika di HP, gunakan Web Share API jika didukung
+      if (navigator.share) {
+        const res = await fetch(imageURI);
+        const blob = await res.blob();
+        const file = new File([blob], 'hasil-pertandingan.png', { type: 'image/png' });
+        try {
+          await navigator.share({
+            title: 'Hasil Pertandingan Yota League',
+            files: [file]
+          });
+          btnDownloadShare.innerText = originalBtnText;
+          btnDownloadShare.disabled = false;
+          return;
+        } catch (err) {
+          console.log("Share API gagal/dibatalkan:", err);
+        }
+      }
+      
+      // Fallback: Download file
+      const link = document.createElement("a");
+      link.download = `YotaLeague-Result.png`;
+      link.href = imageURI;
+      link.click();
+      
+    } catch (error) {
+      console.error("Gagal membuat gambar:", error);
+      alert("Maaf, gagal membuat gambar untuk dibagikan.");
+    }
+
+    btnDownloadShare.innerText = originalBtnText;
+    btnDownloadShare.disabled = false;
+  };
 }
