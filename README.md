@@ -1,55 +1,69 @@
-# Bagan eFootball
+# 🏆 YOTA LEAGUE (Bagan eFootball)
 
-Sebuah aplikasi berbasis web interaktif untuk mengatur, melacak, dan menampilkan jadwal serta hasil turnamen eFootball. Aplikasi ini didesain dengan antarmuka bergaya gelap yang modern, elegan, dan siap digunakan untuk memfasilitasi berbagai jenis kompetisi lokal maupun daring.
+<p align="center">
+  Sebuah aplikasi web progresif (PWA) interaktif untuk manajemen turnamen eFootball masa kini. YOTA LEAGUE didesain dengan antarmuka gelap yang premium, elegan, dan siap memfasilitasi berbagai jenis kompetisi dari level tongkrongan lokal hingga kompetisi daring profesional!
+</p>
 
-## Deskripsi Singkat
+---
 
-Bagan eFootball mempermudah penyelenggara atau pemain untuk mengatur jalannya turnamen tanpa perlu mencatat manual. Aplikasi ini dapat mengkalkulasi skor, memajukan pemenang ke ronde berikutnya secara otomatis, dan menyusun klasemen jika menggunakan sistem liga. Seluruh data pertandingan disimpan secara aman di cloud (Supabase) sehingga Anda tidak perlu khawatir kehilangan riwayat pertandingan.
+## 🌟 Keunggulan Utama
 
-## Fitur Utama
+YOTA LEAGUE bukan sekadar papan skor biasa, melainkan platform manajemen turnamen lengkap dengan fitur canggih untuk memberikan pengalaman e-sports yang nyata:
 
-- **Beberapa Sistem Turnamen**:
-  - Single Elimination (Sistem Gugur Biasa). Mendukung pengisian otomatis peserta "BYE" untuk menyesuaikan bagan jika jumlah tim tidak kelipatan pangkat 2.
-  - Double Elimination (Sistem Gugur Ganda). Dilengkapi dengan Upper Bracket dan Lower Bracket untuk tim yang pernah kalah.
-  - Round Robin (Sistem Liga). Memungkinkan sistem satu leg (bertemu sekali) atau dua leg (kandang-tandang).
-- **Tampilan Responsif dan Modern**: Dibangun menggunakan HTML dan CSS murni dengan desain ala game, kartu pertandingan yang informatif, dan ringkasan skor agregat untuk pertandingan sistem dua leg.
-- **Riwayat Log Aktivitas**: Memudahkan pencatatan semua aktivitas input skor sehingga riwayat turnamen tercatat dengan rapi.
-- **Penyimpanan Terpusat**: Terintegrasi langsung dengan Supabase untuk manajemen database seketika (real-time).
-- **Reset Cepat**: Mendukung penghapusan seluruh data turnamen saat ini untuk memulai kompetisi baru dari awal.
+- **📱 Dukungan PWA (Aplikasi Mobile Offline)**
+  Yota League dapat di-install langsung ke layar beranda HP Anda (Android/iOS)! Berkat teknologi *Service Worker (Network-First)*, aplikasi ini sangat cepat, responsif, dan mampu berjalan layaknya aplikasi *native*.
+  
+- **📸 Share Match Graphic**
+  Ingin pamer hasil pertandingan ke sosial media? Kami menyediakan fitur pembuatan grafis instan! Dengan satu klik, skor pertandingan akan diubah menjadi gambar visual yang keren dan siap dibagikan ke Instagram, WhatsApp, atau platform lainnya.
 
-## Struktur File
+- **🚫 Sistem Blacklist (Kartu Merah)**
+  Lacak pemain yang melanggar aturan dengan mudah. Sistem ini memungkinkan penyelenggara mendata pemain (karakter di dalam game) yang terkena kartu merah untuk setiap tim. Pemain yang masuk daftar *blacklist* akan terpampang jelas di layar!
 
-- `index.html`: Kerangka utama dari antarmuka aplikasi.
-- `style.css`: File styling berisi variabel warna, tema lapangan sepak bola, tipografi modern, dan desain hierarki komponen.
-- `app.js`: Otak dari aplikasi yang mengatur logika turnamen (pembuatan bagan, validasi input, kalkulasi klasemen, pengacakan pemain, dan komunikasi dengan Supabase).
+- **🎲 Club Roulette dengan Face Detection!**
+  Tidak tahu mau pakai klub apa? Fitur **Club Roulette** menggunakan kecerdasan buatan (*Face Detection*) untuk mengacak klub secara visual dan menyenangkan!
 
-## Persyaratan Sistem
+- **☁️ Auto-Save via Cloud Supabase**
+  Tidak perlu takut data hilang karena tak sengaja me-*refresh* halaman! Seluruh *state* turnamen, susunan pemain, daftar pertandingan, hingga klasemen disimpan secara *real-time* ke cloud menggunakan autentikasi anonim (*Anon Sign-in*). Lanjutkan turnamen Anda kapan pun dan di mana pun.
 
-- Browser modern seperti Google Chrome, Mozilla Firefox, Safari, atau Microsoft Edge.
-- Koneksi internet aktif (untuk memuat font dan berkomunikasi dengan database Supabase).
+---
 
-## Cara Penggunaan
+## 📊 Mode Turnamen yang Didukung
 
-1. **Konfigurasi Database**:
-   Buka file `app.js` dan pastikan Anda telah memasukkan `SUPABASE_URL` dan `SUPABASE_ANON_KEY` sesuai dengan proyek Supabase Anda. Anda juga harus memastikan bahwa tabel-tabel berikut telah dikonfigurasi di sisi database:
-   - `turnamen`
-   - `tim`
-   - `state_turnamen`
-   - `log_activity`
+Aplikasi ini sangat fleksibel dan dapat menyesuaikan dengan format kompetisi pilihan Anda:
+
+1. **Single Elimination (Sistem Gugur)**
+   Mendukung pengisian otomatis peserta "BYE" untuk menyeimbangkan bagan jika jumlah tim tidak kelipatan pangkat 2 (misal 5 atau 7 peserta).
    
-2. **Menjalankan Aplikasi**:
-   Cukup buka file `index.html` menggunakan peramban web (browser). Anda bisa menggunakan fitur "Live Server" pada VS Code untuk pengalaman yang lebih baik.
+2. **Double Elimination (Gugur Ganda)**
+   Tidak langsung pulang setelah satu kali kalah! Tersedia *Upper Bracket* dan *Lower Bracket*. Sangat disarankan untuk turnamen dengan 4 atau 8 peserta agar bagan terstruktur dengan sempurna.
+   
+3. **Round Robin (Sistem Liga / Klasemen)**
+   Semua saling berhadapan. Mendukung format **1 Leg** (bertemu sekali) atau **2 Leg** (kandang-tandang) lengkap dengan kalkulasi poin, selisih gol, hingga jumlah kemenangan!
 
-3. **Membuat Turnamen Baru**:
-   - Di halaman utama, masukkan nama turnamen.
-   - Pilih jenis kompetisi yang ingin dijalankan.
-   - Tentukan jumlah peserta.
-   - Masukkan nama peserta dan tim eFootball yang digunakan.
-   - Klik "Buat & Mulai".
+---
 
-4. **Memasukkan Skor**:
-   Setelah bagan turnamen dihasilkan, klik pada area kotak pertandingan mana saja yang berstatus "Klik untuk input skor". Masukkan hasil pertandingan. Aplikasi akan segera memperbarui posisi bagan peserta secara otomatis.
+## 🚀 Cara Penggunaan
 
-## Catatan
+1. **Akses Aplikasi**:
+   Cukup buka web/aplikasinya. Anda akan otomatis masuk ke halaman "Setup Turnamen Baru". Jika diakses melalui HP, browser akan menawarkan opsi untuk *"Add to Home Screen"* (Install Aplikasi).
+2. **Setup Peserta**:
+   Masukkan nama turnamen, pilih mode kompetisi, dan input nama tim. (Gunakan *Club Roulette* jika butuh inspirasi).
+3. **Mulai Kompetisi**:
+   Klik pada pertandingan mana saja yang berstatus "Klik untuk input skor".
+4. **Input Skor & Kartu Merah**:
+   Ketik skor pertandingan dan masukkan nama pemain yang kena kartu merah (jika ada).
+5. **Bagikan (Share)**:
+   Gunakan tombol *Share* untuk mencetak gambar hasil pertandingan dan kirimkan ke teman-teman.
 
-Untuk memastikan integrasi Double Elimination stabil secara visual dan sistematis tanpa terputus, sistem disarankan berjalan optimal untuk 4 dan 8 peserta. Jika di luar itu, sistem akan merekomendasikan transisi ke mode Single Elimination. Mode Round Robin dan Single Elimination tidak membatasi jumlah peserta.
+---
+
+## 🛠 Teknologi yang Digunakan
+
+- **Frontend**: HTML5, CSS3 (Vanilla & Custom Animations), JavaScript (ES6+).
+- **Backend/DB**: Supabase (PostgreSQL, REST API, Anon Auth).
+- **Infrastruktur**: Progressive Web App (Manifest & Service Worker API).
+- **Ekstra**: `html2canvas` (Untuk *screenshot* Match Graphic), `face-api.js` (Face Detection Roulette).
+
+---
+
+> *Dibuat khusus untuk mewujudkan turnamen eFootball yang profesional, tertata, dan menyenangkan!*
