@@ -1422,42 +1422,38 @@ async function loadStandings(turnamenId) {
 
 async function checkExistingTournament() {
   if (!state.turnamenId) {
-    // Cek apakah ada turnamen yang sedang berjalan
-    const { data: states } = await db
-      .from("state_turnamen")
-      .select("turnamen_id")
-      .limit(1);
+    // Cari turnamen terbaru yang aktif milik user ini
+    const { data: turnamen, error: errT } = await db
+      .from("turnamen")
+      .select("*")
+      .eq("user_id", state.userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (states && states.length > 0) {
-      // ✅ SELECT, bukan INSERT
-      const { data: turnamen, error: errT } = await db
-        .from("turnamen")
-        .select("*")
-        .eq("id", states[0].turnamen_id)
-        .single();
+    if (errT || !turnamen) {
+      return;
+    }
 
-      if (errT || !turnamen) return;
+    state.turnamenId = turnamen.id;
+    state.nama = turnamen.nama;
+    state.sistem = turnamen.sistem;
+    state.rrType = turnamen.rr_type || null;
 
-      state.turnamenId = turnamen.id;
-      state.nama = turnamen.nama;
-      state.sistem = turnamen.sistem;
-      state.rrType = turnamen.rr_type || null;
+    // Load players
+    const { data: players } = await db
+      .from("tim")
+      .select("*")
+      .eq("turnamen_id", turnamen.id);
 
-      // Load players
-      const { data: players } = await db
-        .from("tim")
-        .select("*")
-        .eq("turnamen_id", turnamen.id);
+    state.players = players || [];
 
-      state.players = players || [];
+    // Load state pertandingan
+    await loadState(turnamen.id);
 
-      // Load state pertandingan
-      await loadState(turnamen.id);
-
-      // Load standings untuk round robin
-      if (state.sistem === "round_robin") {
-        await loadStandings(turnamen.id);
-      }
+    // Load standings untuk round robin
+    if (state.sistem === "round_robin") {
+      await loadStandings(turnamen.id);
     }
   }
 }
