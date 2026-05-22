@@ -149,6 +149,12 @@
         </div>
     </div>
     <div id="bracket-container"></div>
+    
+    <div id="blacklist-container" class="blacklist-container hidden">
+        <h3>🚫 Daftar Blacklist (Kartu Merah)</h3>
+        <div id="blacklist-list" class="blacklist-grid"></div>
+    </div>
+
     <div id="log-container">
         <h3>📜 Log Aktivitas</h3>
         <ul id="log-list"></ul>
@@ -165,6 +171,13 @@
         <input type="number" id="score-a" placeholder="Skor Tim A" min="0">
         <span>-</span>
         <input type="number" id="score-b" placeholder="Skor Tim B" min="0">
+      </div>
+      <div class="redcard-section" style="margin-top: 15px; margin-bottom: 20px;">
+        <h4 style="margin-bottom: 10px; font-size: 0.9em; color: #f87171;">Kartu Merah (Opsional)</h4>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="redcard-a" placeholder="Pisahkan dengan koma jika lebih dari satu" style="flex: 1; font-size: 0.8em; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.05);">
+          <input type="text" id="redcard-b" placeholder="Pisahkan dengan koma jika lebih dari satu" style="flex: 1; font-size: 0.8em; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.05);">
+        </div>
       </div>
       <button id="confirm-score">Simpan</button>
       <button id="close-modal" class="secondary">Batal</button>

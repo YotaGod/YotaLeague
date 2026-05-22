@@ -740,7 +740,47 @@ function render() {
     } else {
       logList.innerHTML = "<li>Belum ada pertandingan</li>";
     }
+
+    // Render Blacklist
+    renderBlacklist();
   }
+}
+
+function renderBlacklist() {
+  const container = document.getElementById("blacklist-container");
+  const list = document.getElementById("blacklist-list");
+  
+  if (!container || !list) return;
+
+  const bannedData = {};
+
+  state.matches.forEach(m => {
+    if (m.redCardsA && m.redCardsA.length > 0) {
+      if (!bannedData[m.playerA.id]) bannedData[m.playerA.id] = { team: m.playerA.nama_tim, owner: m.playerA.nama_pemain, banned: new Set() };
+      m.redCardsA.forEach(p => bannedData[m.playerA.id].banned.add(p));
+    }
+    if (m.redCardsB && m.redCardsB.length > 0) {
+      if (!bannedData[m.playerB.id]) bannedData[m.playerB.id] = { team: m.playerB.nama_tim, owner: m.playerB.nama_pemain, banned: new Set() };
+      m.redCardsB.forEach(p => bannedData[m.playerB.id].banned.add(p));
+    }
+  });
+
+  const bannedTeams = Object.values(bannedData);
+
+  if (bannedTeams.length === 0) {
+    container.classList.add("hidden");
+    return;
+  }
+
+  container.classList.remove("hidden");
+  list.innerHTML = bannedTeams.map(t => `
+    <div class="blacklist-card">
+      <div class="team-owner">${t.team} (${t.owner})</div>
+      <div class="banned-players">
+        ${Array.from(t.banned).map(p => `<div><span>${p}</span><span class="banned-badge">BANNED</span></div>`).join('')}
+      </div>
+    </div>
+  `).join("");
 }
 
 // ✅ FUNGSI BARU: Render Round Robin
@@ -1147,6 +1187,10 @@ function openScoreModal(matchId) {
   // ✅ Pastikan input kosong untuk leg 2
   document.getElementById("score-a").value = "";
   document.getElementById("score-b").value = "";
+  const rcA = document.getElementById("redcard-a");
+  const rcB = document.getElementById("redcard-b");
+  if (rcA) rcA.value = "";
+  if (rcB) rcB.value = "";
   scoreModal.classList.remove("hidden");
 }
 
@@ -1176,6 +1220,16 @@ document.getElementById("confirm-score").onclick = async () => {
   m.scoreA = sA;
   m.scoreB = sB;
   m.status = "completed";
+
+  // Simpan Kartu Merah
+  const rcAInput = document.getElementById("redcard-a");
+  const rcBInput = document.getElementById("redcard-b");
+  if (rcAInput && rcAInput.value.trim() !== "") {
+    m.redCardsA = rcAInput.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
+  }
+  if (rcBInput && rcBInput.value.trim() !== "") {
+    m.redCardsB = rcBInput.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
+  }
 
   // Update standings untuk Round Robin
   if (state.sistem === "round_robin") {
@@ -1294,11 +1348,14 @@ async function saveStandings() {
 }
 
 async function loadState(turnamenId) {
-  const { data: stateData, error: stateError } = await db
+  const { data, error: stateError } = await db
     .from("state_turnamen")
     .select("*")
     .eq("turnamen_id", turnamenId)
-    .single();
+    .order("updated_at", { ascending: false })
+    .limit(1);
+
+  const stateData = data && data.length > 0 ? data[0] : null;
 
   if (stateError || !stateData) return false;
 
@@ -1320,11 +1377,14 @@ async function loadState(turnamenId) {
 // ✅ TAMBAHKAN fungsi ini setelah loadState()
 async function loadStandings(turnamenId) {
   // Coba load dari database
-  const { data: stateData } = await db
+  const { data } = await db
     .from("state_turnamen")
     .select("standings")
     .eq("turnamen_id", turnamenId)
-    .single();
+    .order("updated_at", { ascending: false })
+    .limit(1);
+    
+  const stateData = data && data.length > 0 ? data[0] : null;
 
   if (stateData && stateData.standings) {
     state.standings = stateData.standings;
@@ -1487,10 +1547,8 @@ async function saveState() {
   if (!state.turnamenId) return;
 
   const payload = {
-    turnamen_id: state.turnamenId,
     data_pertandingan: state.matches,
     updated_at: new Date().toISOString(),
-    user_id: state.userId,
   };
 
   // Tambahkan standings jika round robin
@@ -1498,9 +1556,22 @@ async function saveState() {
     payload.standings = state.standings;
   }
 
-  const { error } = await db.from("state_turnamen").upsert(payload);
+  // Cek apakah data sudah ada
+  const { data: existing } = await db
+    .from("state_turnamen")
+    .select("id")
+    .eq("turnamen_id", state.turnamenId)
+    .limit(1);
 
-  if (error) console.error("Error saving state:", error);
+  if (existing && existing.length > 0) {
+    const { error } = await db.from("state_turnamen").update(payload).eq("id", existing[0].id);
+    if (error) console.error("Error updating state:", error);
+  } else {
+    payload.turnamen_id = state.turnamenId;
+    payload.user_id = state.userId;
+    const { error } = await db.from("state_turnamen").insert(payload);
+    if (error) console.error("Error inserting state:", error);
+  }
 }
 
 // ✅ TAMBAHKAN fungsi ini
