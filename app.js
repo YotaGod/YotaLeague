@@ -1315,7 +1315,7 @@ async function loadState(turnamenId) {
 // ✅ TAMBAHKAN fungsi ini setelah loadState()
 async function loadStandings(turnamenId) {
   // Coba load dari database
-  const { stateData } = await db
+  const { data: stateData } = await db
     .from("state_turnamen")
     .select("standings")
     .eq("turnamen_id", turnamenId)
@@ -1344,14 +1344,14 @@ async function loadStandings(turnamenId) {
 async function checkExistingTournament() {
   if (!state.turnamenId) {
     // Cek apakah ada turnamen yang sedang berjalan
-    const { states } = await db
+    const { data: states } = await db
       .from("state_turnamen")
       .select("turnamen_id")
       .limit(1);
 
     if (states && states.length > 0) {
       // ✅ SELECT, bukan INSERT
-      const { turnamen, error: errT } = await db
+      const { data: turnamen, error: errT } = await db
         .from("turnamen")
         .select("*")
         .eq("id", states[0].turnamen_id)
@@ -1365,7 +1365,7 @@ async function checkExistingTournament() {
       state.rrType = turnamen.rr_type || null;
 
       // Load players
-      const { players } = await db
+      const { data: players } = await db
         .from("tim")
         .select("*")
         .eq("turnamen_id", turnamen.id);
