@@ -1336,15 +1336,24 @@ function updateRoundRobinStandings(match) {
 async function saveStandings() {
   if (!state.turnamenId || state.sistem !== "round_robin") return;
 
-  const { error } = await db
+  const { data: existing } = await db
     .from("state_turnamen")
-    .update({
-      standings: state.standings,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("turnamen_id", state.turnamenId);
+    .select("id")
+    .eq("turnamen_id", state.turnamenId)
+    .order("updated_at", { ascending: false })
+    .limit(1);
 
-  if (error) console.error("Error saving standings:", error);
+  if (existing && existing.length > 0) {
+    const { error } = await db
+      .from("state_turnamen")
+      .update({
+        standings: state.standings,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing[0].id);
+
+    if (error) console.error("Error saving standings:", error);
+  }
 }
 
 async function loadState(turnamenId) {
@@ -1561,6 +1570,7 @@ async function saveState() {
     .from("state_turnamen")
     .select("id")
     .eq("turnamen_id", state.turnamenId)
+    .order("updated_at", { ascending: false })
     .limit(1);
 
   if (existing && existing.length > 0) {

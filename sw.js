@@ -1,4 +1,4 @@
-const CACHE_NAME = "yota-league-v1";
+const CACHE_NAME = "yota-league-v3";
 const urlsToCache = [
   "./",
   "./index.html",
@@ -11,6 +11,7 @@ const urlsToCache = [
 
 // Instal Service Worker dan simpan file ke dalam cache
 self.addEventListener("install", (event) => {
+  self.skipWaiting(); // Force the new service worker to take over immediately
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log("Opened cache");
@@ -19,16 +20,22 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Intercept jaringan dan kembalikan file dari cache jika offline
+// Intercept jaringan menggunakan strategi Network-First
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Jika ada di cache, kembalikan dari cache
-      if (response) {
+    fetch(event.request)
+      .then((response) => {
+        // Simpan versi terbaru ke cache
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseClone);
+        });
         return response;
-      }
-      return fetch(event.request);
-    })
+      })
+      .catch(() => {
+        // Jika offline, ambil dari cache
+        return caches.match(event.request);
+      })
   );
 });
 
