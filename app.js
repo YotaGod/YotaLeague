@@ -152,6 +152,11 @@ setupForm.addEventListener("submit", async (e) => {
   state.sistem = selectedMode;
   state.rrType = rrType;
 
+  if (!state.userId) {
+    alert("Gagal membuat turnamen: Sesi pengguna anonim belum aktif. Pastikan Anda sudah mengaktifkan 'Anonymous Sign-ins' di Supabase Dashboard -> Authentication -> Providers.");
+    return;
+  }
+
   try {
     // 1. Buat turnamen
     const { data: turnamen, error: errT } = await db
