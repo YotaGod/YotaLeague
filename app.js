@@ -7,6 +7,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // State lokal
 let state = {
+  userId: null,
   turnamenId: null,
   nama: "",
   sistem: "single",
@@ -30,6 +31,21 @@ let currentMatchId = null;
 
 // Init
 document.addEventListener("DOMContentLoaded", async () => {
+  // 1. Inisialisasi Anonymous Sign-In
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    const { data, error } = await db.auth.signInAnonymously();
+    if (error) {
+      console.error("Gagal login anonim:", error);
+    } else {
+      state.userId = data.user?.id;
+      console.log("Logged in anonymously:", state.userId);
+    }
+  } else {
+    state.userId = session.user.id;
+    console.log("Session restored:", state.userId);
+  }
+
   await checkExistingTournament();
   render();
 });
@@ -140,7 +156,7 @@ setupForm.addEventListener("submit", async (e) => {
     // 1. Buat turnamen
     const { data: turnamen, error: errT } = await db
       .from("turnamen")
-      .insert({ nama, sistem: state.sistem })
+      .insert({ nama, sistem: state.sistem, user_id: state.userId })
       .select()
       .single();
 
@@ -157,6 +173,7 @@ setupForm.addEventListener("submit", async (e) => {
         nama_pemain: p.nama_pemain,
         nama_tim: p.nama_tim,
         turnamen_id: state.turnamenId,
+        user_id: state.userId,
       })),
     );
 
@@ -1178,6 +1195,7 @@ document.getElementById("confirm-score").onclick = async () => {
             : "Seri"
         : m.winner?.nama_tim,
     timestamp: new Date().toISOString(),
+    user_id: state.userId,
   };
   state.logs.unshift(log);
   await db.from("log_activity").insert(log);
@@ -1462,6 +1480,7 @@ async function saveState() {
     turnamen_id: state.turnamenId,
     data_pertandingan: state.matches,
     updated_at: new Date().toISOString(),
+    user_id: state.userId,
   };
 
   // Tambahkan standings jika round robin
