@@ -173,10 +173,16 @@
         <input type="number" id="score-b" placeholder="Skor Tim B" min="0">
       </div>
       <div class="redcard-section" style="margin-top: 15px; margin-bottom: 20px;">
-        <h4 style="margin-bottom: 10px; font-size: 0.9em; color: #f87171;">Kartu Merah (Opsional)</h4>
-        <div style="display: flex; gap: 10px;">
-          <input type="text" id="redcard-a" placeholder="Pisahkan dengan koma jika lebih dari satu" style="flex: 1; font-size: 0.8em; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.05);">
-          <input type="text" id="redcard-b" placeholder="Pisahkan dengan koma jika lebih dari satu" style="flex: 1; font-size: 0.8em; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.05);">
+        <h4 style="margin-bottom: 10px; font-size: 0.9em; color: #f87171; text-align: center;">🚫 Kartu Merah (Opsional)</h4>
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+          <div style="width: 100%;">
+            <label id="redcard-label-a" style="display: block; font-size: 0.8em; color: #a1a1aa; margin-bottom: 4px; text-align: left;">Tim A</label>
+            <input type="text" id="redcard-a" placeholder="Pisahkan dgn koma: Messi, Mbappe" style="width: 100%; box-sizing: border-box; font-size: 0.85em; padding: 10px; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.05); border-radius: 6px; color: #fff; outline: none;">
+          </div>
+          <div style="width: 100%;">
+            <label id="redcard-label-b" style="display: block; font-size: 0.8em; color: #a1a1aa; margin-bottom: 4px; text-align: left;">Tim B</label>
+            <input type="text" id="redcard-b" placeholder="Pisahkan dgn koma: Ronaldo, Neymar" style="width: 100%; box-sizing: border-box; font-size: 0.85em; padding: 10px; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.05); border-radius: 6px; color: #fff; outline: none;">
+          </div>
         </div>
       </div>
       <button id="confirm-score">Simpan</button>

@@ -1191,6 +1191,11 @@ function openScoreModal(matchId) {
   const rcB = document.getElementById("redcard-b");
   if (rcA) rcA.value = "";
   if (rcB) rcB.value = "";
+  
+  const rcLabelA = document.getElementById("redcard-label-a");
+  const rcLabelB = document.getElementById("redcard-label-b");
+  if (rcLabelA) rcLabelA.textContent = `Tim ${m.playerA.nama_tim}`;
+  if (rcLabelB) rcLabelB.textContent = `Tim ${m.playerB.nama_tim}`;
   scoreModal.classList.remove("hidden");
 }
 
