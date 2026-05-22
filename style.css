@@ -944,15 +944,15 @@ button[type="submit"] {
    SHARE GRAPHIC CARD (POSTER HASIL PERTANDINGAN)
    ============================================================== */
 .share-graphic-card {
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  background: linear-gradient(135deg, #090f1f 0%, #170f2b 100%);
   color: white;
-  padding: 30px;
-  border-radius: 16px;
+  padding: 40px 20px;
+  border-radius: 20px;
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.08);
   width: 100%;
   box-sizing: border-box;
 }
@@ -962,9 +962,21 @@ button[type="submit"] {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(20, 184, 166, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+    radial-gradient(circle at 10% 20%, rgba(20, 184, 166, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.25) 0%, transparent 40%);
   z-index: 1;
+}
+
+/* Tambahan efek grid/garis belakang untuk nuansa sport */
+.share-graphic-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  z-index: 1;
+  opacity: 0.5;
 }
 
 .share-graphic-card > * {
@@ -976,79 +988,112 @@ button[type="submit"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 5px;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .share-logo {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
 }
 
 #share-tournament-name {
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: 1.4rem;
+  font-weight: 900;
   margin: 0;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
-  background: linear-gradient(to right, #14b8a6, #3b82f6);
+  background: linear-gradient(90deg, #14b8a6, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
 }
 
 .share-match-stage {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  letter-spacing: 3px;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  margin-bottom: 30px;
-  font-weight: bold;
+  margin-bottom: 35px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.1);
+  display: inline-block;
+  padding: 4px 15px;
+  border-radius: 20px;
 }
 
 .share-teams {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 30px;
-  background: rgba(255,255,255,0.03);
-  padding: 20px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 35px;
+  background: rgba(255,255,255,0.02);
+  padding: 25px 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
 }
 
 .share-team {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .share-team-name {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 900;
+  font-style: italic;
   color: #fff;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   text-transform: uppercase;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.8);
+  line-height: 1.1;
+  word-break: break-word;
 }
 
 .share-player-name {
-  font-size: 0.9rem;
-  color: #a0aec0;
-  font-weight: 500;
+  font-size: 0.95rem;
+  color: #94a3b8;
+  font-weight: 600;
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 .share-score {
-  font-size: 3.5rem;
+  font-size: 4rem;
   font-weight: 900;
   color: #14b8a6;
-  padding: 0 20px;
   font-family: 'Courier New', Courier, monospace;
-  text-shadow: 0 0 20px rgba(20, 184, 166, 0.4);
+  text-shadow: 0 0 25px rgba(20, 184, 166, 0.6);
+  white-space: nowrap;
 }
 
 .share-footer {
-  font-size: 0.85rem;
-  color: #cbd5e1;
-  background: rgba(0,0,0,0.3);
-  padding: 8px 15px;
-  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  background: rgba(0,0,0,0.4);
+  padding: 10px 20px;
+  border-radius: 25px;
   display: inline-block;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Optimasi layar handphone agar font proporsional */
+@media (max-width: 400px) {
+  .share-team-name {
+    font-size: 1.4rem;
+  }
+  .share-score {
+    font-size: 3rem !important;
+  }
+  .share-teams {
+    padding: 15px 5px;
+  }
 }
