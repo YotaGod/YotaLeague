@@ -1,7 +1,7 @@
 # 🏆 YOTA LEAGUE (Bagan eFootball)
 
 <p align="center">
-  Sebuah aplikasi web progresif (PWA) interaktif untuk manajemen turnamen eFootball masa kini. YOTA LEAGUE didesain dengan antarmuka gelap yang premium, elegan, dan siap memfasilitasi berbagai jenis kompetisi dari level tongkrongan lokal hingga kompetisi daring profesional!
+  Sebuah aplikasi web progresif (PWA) interaktif untuk manajemen turnamen eFootball masa kini. YOTA LEAGUE didesain dengan antarmuka yang premium, elegan, dan siap memfasilitasi berbagai jenis kompetisi dari level tongkrongan lokal hingga kompetisi daring profesional!
 </p>
 
 ---
