@@ -1135,13 +1135,15 @@ function openScoreModal(matchId) {
   currentMatchId = matchId;
   const m = state.matches.find((x) => x.id === matchId);
 
-  if (!m || m.status !== "pending") {
-    alert("Pertandingan tidak tersedia atau sudah selesai!");
+  if (!m) {
+    alert("Pertandingan tidak tersedia!");
     return;
   }
 
+  const isEdit = m.status === "completed";
+
   // Tampilkan info leg dan hasil leg sebelumnya jika ada
-  let modalTitle = `Input Skor Leg ${m.leg}`;
+  let modalTitle = isEdit ? `Edit Skor Leg ${m.leg || ""}` : `Input Skor Leg ${m.leg || ""}`;
   let leg1Info = "";
 
   if (m.leg === 2) {
@@ -1184,13 +1186,13 @@ function openScoreModal(matchId) {
   document.getElementById("match-info").innerHTML =
     `<strong>${modalTitle}</strong><br><div class="match-teams-header" style="border:none; margin: 10px 0;"><div class="team-name">${m.playerA.nama_tim}</div><div class="vs-badge">VS</div><div class="team-name">${m.playerB.nama_tim}</div></div>${leg1Info}`;
 
-  // ✅ Pastikan input kosong untuk leg 2
-  document.getElementById("score-a").value = "";
-  document.getElementById("score-b").value = "";
+  // Isi form dengan data sebelumnya jika mode edit
+  document.getElementById("score-a").value = isEdit ? m.scoreA : "";
+  document.getElementById("score-b").value = isEdit ? m.scoreB : "";
   const rcA = document.getElementById("redcard-a");
   const rcB = document.getElementById("redcard-b");
-  if (rcA) rcA.value = "";
-  if (rcB) rcB.value = "";
+  if (rcA) rcA.value = (isEdit && m.redCardsA) ? m.redCardsA.join(", ") : "";
+  if (rcB) rcB.value = (isEdit && m.redCardsB) ? m.redCardsB.join(", ") : "";
   
   const rcLabelA = document.getElementById("redcard-label-a");
   const rcLabelB = document.getElementById("redcard-label-b");
@@ -1222,6 +1224,11 @@ document.getElementById("confirm-score").onclick = async () => {
     return;
   }
 
+  const isEdit = m.status === "completed";
+  const oldScoreA = m.scoreA;
+  const oldScoreB = m.scoreB;
+  const oldWinnerId = m.winnerId;
+
   m.scoreA = sA;
   m.scoreB = sB;
   m.status = "completed";
@@ -1231,13 +1238,18 @@ document.getElementById("confirm-score").onclick = async () => {
   const rcBInput = document.getElementById("redcard-b");
   if (rcAInput && rcAInput.value.trim() !== "") {
     m.redCardsA = rcAInput.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
+  } else {
+    delete m.redCardsA;
   }
   if (rcBInput && rcBInput.value.trim() !== "") {
     m.redCardsB = rcBInput.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
+  } else {
+    delete m.redCardsB;
   }
 
   // Update standings untuk Round Robin
   if (state.sistem === "round_robin") {
+    if (isEdit) revertRoundRobinStandings(m, oldScoreA, oldScoreB);
     updateRoundRobinStandings(m);
     await saveStandings();
   } else {
@@ -1245,7 +1257,15 @@ document.getElementById("confirm-score").onclick = async () => {
     m.winner = sA > sB ? m.playerA : m.playerB;
     m.winnerId =
       sA > sB ? m.winnerIdA || m.playerA.id : m.winnerIdB || m.playerB.id;
-    advanceWinner(m);
+      
+    if (isEdit) {
+      if (oldWinnerId !== m.winnerId) {
+        resetDependentMatches(m);
+        advanceWinner(m);
+      }
+    } else {
+      advanceWinner(m);
+    }
   }
 
   // Log
@@ -1334,6 +1354,86 @@ function updateRoundRobinStandings(match) {
     teamA.points += 1;
     teamB.points += 1;
     match.isDraw = true;
+  }
+}
+
+// ✅ Fungsi untuk mengembalikan statistik klasemen (Edit Score)
+function revertRoundRobinStandings(match, oldScoreA, oldScoreB) {
+  const teamA = state.standings.find((s) => s.id === match.playerA.id);
+  const teamB = state.standings.find((s) => s.id === match.playerB.id);
+  if (!teamA || !teamB) return;
+
+  teamA.played--;
+  teamB.played--;
+
+  teamA.gf -= oldScoreA;
+  teamA.ga -= oldScoreB;
+  teamB.gf -= oldScoreB;
+  teamB.ga -= oldScoreA;
+
+  teamA.gd = teamA.gf - teamA.ga;
+  teamB.gd = teamB.gf - teamB.ga;
+
+  if (oldScoreA > oldScoreB) {
+    teamA.won--;
+    teamA.points -= 3;
+    teamB.lost--;
+  } else if (oldScoreB > oldScoreA) {
+    teamB.won--;
+    teamB.points -= 3;
+    teamA.lost--;
+  } else {
+    teamA.drawn--;
+    teamB.drawn--;
+    teamA.points -= 1;
+    teamB.points -= 1;
+  }
+}
+
+// ✅ Fungsi untuk mereset pertandingan yang terdampak di eliminasi (Edit Score)
+function resetDependentMatches(match) {
+  if (match.nextMatchId) {
+    let nextMatch = state.matches.find((m) => m.id === match.nextMatchId);
+    if (nextMatch) {
+      if (match.nextSlot === "A") {
+        nextMatch.playerA = null;
+        nextMatch.winnerIdA = null;
+      } else {
+        nextMatch.playerB = null;
+        nextMatch.winnerIdB = null;
+      }
+      if (nextMatch.status === "completed") {
+        nextMatch.status = "pending";
+        nextMatch.scoreA = null;
+        nextMatch.scoreB = null;
+        nextMatch.winner = null;
+        nextMatch.winnerId = null;
+        resetDependentMatches(nextMatch);
+      } else if (!nextMatch.playerA || !nextMatch.playerB) {
+        nextMatch.status = "waiting";
+      }
+    }
+  }
+
+  if (match.nextLoserMatchId) {
+    let nextLoserMatch = state.matches.find((m) => m.id === match.nextLoserMatchId);
+    if (nextLoserMatch) {
+      if (match.nextLoserSlot === "A") {
+        nextLoserMatch.playerA = null;
+      } else {
+        nextLoserMatch.playerB = null;
+      }
+      if (nextLoserMatch.status === "completed") {
+        nextLoserMatch.status = "pending";
+        nextLoserMatch.scoreA = null;
+        nextLoserMatch.scoreB = null;
+        nextLoserMatch.winner = null;
+        nextLoserMatch.winnerId = null;
+        resetDependentMatches(nextLoserMatch);
+      } else if (!nextLoserMatch.playerA || !nextLoserMatch.playerB) {
+        nextLoserMatch.status = "waiting";
+      }
+    }
   }
 }
 
@@ -1988,6 +2088,14 @@ function openShareModal(matchId) {
     aggInfo.style.display = "inline-block";
   } else {
     aggInfo.style.display = "none";
+  }
+
+  const btnEditMatch = document.getElementById("btn-edit-match");
+  if (btnEditMatch) {
+    btnEditMatch.onclick = () => {
+      shareModal.classList.add("hidden");
+      openScoreModal(matchId);
+    };
   }
 
   shareModal.classList.remove("hidden");
