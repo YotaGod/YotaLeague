@@ -31,6 +31,30 @@ let currentMatchId = null;
 
 // Init
 document.addEventListener("DOMContentLoaded", async () => {
+  if (btnKembali) {
+    btnKembali.addEventListener("click", async () => {
+      if (confirm("Hapus SEMUA data dari database? Tindakan ini TIDAK BISA dikembalikan!")) {
+        try {
+          await db.from("log_activity").delete().not("timestamp", "is", null);
+          await db.from("state_turnamen").delete().not("turnamen_id", "is", null);
+          await db.from("tim").delete().not("turnamen_id", "is", null);
+          await db.from("turnamen").delete().not("nama", "is", null);
+
+          state = { turnamenId: null, nama: "", sistem: "single", rrType: null, players: [], matches: [], logs: [], standings: [] };
+          render();
+          setupSection.classList.remove("hidden");
+          bracketSection.classList.add("hidden");
+          document.getElementById("setup-form").reset();
+          playersInputs.innerHTML = "";
+          alert("✅ SEMUA data berhasil dihapus! Siap untuk turnamen baru.");
+        } catch (error) {
+          alert("Error menghapus data: " + error.message);
+          console.error(error);
+        }
+      }
+    });
+  }
+
   // 1. Inisialisasi Anonymous Sign-In
   const { data: { session } } = await db.auth.getSession();
   if (!session) {
@@ -692,57 +716,7 @@ function render() {
     }
     bracketTitle.textContent = `🏟️ ${state.nama} (${modeText})`;
 
-    // Pastikan tombol kembali ada
-    if (!document.getElementById("btn-kembali")) {
-      const btnKembali = document.createElement("button");
-      btnKembali.id = "btn-kembali";
-      btnKembali.className = "danger";
-      btnKembali.textContent = "🛑 Akhiri";
-      btnKembali.onclick = async () => {
-        if (
-          confirm("Hapus SEMUA data dari database? Tindakan ini TIDAK BISA dikembalikan!")
-        ) {
-          try {
-            // Sapu bersih semua data dari Supabase
-            await db.from("log_activity").delete().not("timestamp", "is", null);
-            await db.from("state_turnamen").delete().not("turnamen_id", "is", null);
-            await db.from("tim").delete().not("turnamen_id", "is", null);
-            await db.from("turnamen").delete().not("nama", "is", null);
 
-            // Reset state lokal
-            state = {
-              turnamenId: null,
-              nama: "",
-              sistem: "single",
-              rrType: null,
-              players: [],
-              matches: [],
-              logs: [],
-              standings: [],
-            };
-
-            render();
-            setupSection.classList.remove("hidden");
-            bracketSection.classList.add("hidden");
-            document.getElementById("setup-form").reset();
-            playersInputs.innerHTML = "";
-
-            alert("✅ SEMUA data berhasil dihapus! Siap untuk turnamen baru.");
-          } catch (error) {
-            alert("Error menghapus data: " + error.message);
-            console.error(error);
-          }
-        }
-      };
-
-      const bracketHeader = document.querySelector(".bracket-header");
-      if (bracketHeader) {
-        const actions = bracketHeader.querySelector(".bracket-actions");
-        if (actions && !actions.querySelector("#btn-kembali")) {
-          actions.appendChild(btnKembali);
-        }
-      }
-    }
 
     bracketContainer.innerHTML = "";
 
