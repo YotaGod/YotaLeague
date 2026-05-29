@@ -1734,19 +1734,25 @@ function startFaceDetection() {
       
       const detections = await faceapi.detectAllFaces(
         rouletteVideo,
-        new faceapi.TinyFaceDetectorOptions()
+        new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 })
       );
       
       const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      currentDetections = resizedDetections;
+      
+      if (resizedDetections.length > 0) {
+        currentDetections = resizedDetections;
+        frameCount = 0; // Reset counter jika wajah ditemukan
+      } else {
+        frameCount++; // Tambah counter jika wajah hilang di frame ini
+      }
 
-      if (currentDetections.length > 0) {
+      // Jika wajah ada ATAU wajah hilang sebentar (kurang dari 10 frame / ~2 detik) = LOCK TARGET
+      if (currentDetections.length > 0 && frameCount < 10) {
         noFaceWarning.classList.add("hidden");
         btnStartGacha.classList.remove("hidden");
         rouletteStatus.textContent = `${currentDetections.length} Wajah terdeteksi! Tekan "Mulai Gacha" jika siap.`;
-        frameCount = 0;
 
-        // Render bounding box/indikator wajah
+        // Render bounding box/indikator wajah dari posisi terakhir
         faceOverlaysContainer.innerHTML = "";
         currentDetections.forEach((det) => {
           const indicator = document.createElement("div");
@@ -1778,10 +1784,12 @@ function startFaceDetection() {
           faceOverlaysContainer.appendChild(indicator);
         });
       } else {
+        // Wajah benar-benar hilang cukup lama
+        currentDetections = [];
         btnStartGacha.classList.add("hidden");
         rouletteStatus.textContent = "Mencari wajah...";
         faceOverlaysContainer.innerHTML = ""; // Bersihkan indikator
-        frameCount++;
+        
         if (frameCount > 25) {
           noFaceWarning.classList.remove("hidden");
         }
