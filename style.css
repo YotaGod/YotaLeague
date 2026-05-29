@@ -754,7 +754,6 @@ button[type="submit"] {
 .camera-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 4/3;
   background: #000;
   border-radius: 10px;
   overflow: hidden;
@@ -815,6 +814,7 @@ button[type="submit"] {
 }
 
 .face-overlay {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
