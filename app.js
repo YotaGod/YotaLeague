@@ -1687,10 +1687,23 @@ async function openCameraModal() {
     rouletteStatus.textContent = "Memuat model deteksi wajah...";
     await loadFaceApiModels();
 
-    // Tunggu video play
+    // Tunggu video play — pake event + fallback agar tidak tergantung pada 'onplay' saja
     rouletteVideo.onplay = () => {
       startFaceDetection();
     };
+
+    // Mulai play secara eksplisit (penting untuk mobile/browser strict)
+    try {
+      await rouletteVideo.play();
+    } catch (playErr) {
+      console.warn("Video play() failed, waiting for autoplay:", playErr);
+    }
+
+    // Fallback: jika video sudah berjalan sebelum onplay terpasang
+    if (!rouletteVideo.paused) {
+      startFaceDetection();
+    }
+
   } catch (error) {
     console.error("Camera error:", error);
     rouletteStatus.textContent = "Gagal mengakses kamera. Pastikan izin kamera diberikan.";
@@ -1723,7 +1736,7 @@ async function loadFaceApiModels() {
 
 // Mulai deteksi wajah
 function startFaceDetection() {
-  if (faceDetectionInterval) clearInterval(faceDetectionInterval);
+  if (faceDetectionInterval) return; // Sudah berjalan, jangan mulai lagi
 
   let frameCount = 0;
   faceDetectionInterval = setInterval(async () => {
@@ -1907,8 +1920,6 @@ function handleCloseCameraModal() {
   cameraModal.classList.add("hidden");
 
   clearRouletteTimers();
-  isRouletteSpinning = false;
-  rouletteSpinner.classList.remove("is-spinning");
 
   // Hentikan stream kamera
   if (stream) {
@@ -1917,7 +1928,8 @@ function handleCloseCameraModal() {
   }
 
   // Reset state
-  faceDetected = false;
+  currentDetections = [];
+  faceOverlaysContainer.innerHTML = "";
   rouletteClubs = [];
   selectedCategory = "";
 }
