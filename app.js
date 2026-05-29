@@ -1796,6 +1796,7 @@ function startFaceDetection() {
       }
     } catch (error) {
       console.error("Detection error:", error);
+      rouletteStatus.textContent = "Error AI: " + error.message;
     }
   }, 200);
 }
