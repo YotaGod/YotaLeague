@@ -696,13 +696,42 @@ function render() {
     if (!document.getElementById("btn-kembali")) {
       const btnKembali = document.createElement("button");
       btnKembali.id = "btn-kembali";
-      btnKembali.className = "secondary";
-      btnKembali.textContent = "← Kembali";
+      btnKembali.className = "danger";
+      btnKembali.textContent = "🛑 Akhiri";
       btnKembali.onclick = async () => {
         if (
-          confirm("Kembali ke halaman setup? Turnamen saat ini akan dihapus.")
+          confirm("Hapus SEMUA data dari database? Tindakan ini TIDAK BISA dikembalikan!")
         ) {
-          await resetTournament();
+          try {
+            // Sapu bersih semua data dari Supabase
+            await db.from("log_activity").delete().not("timestamp", "is", null);
+            await db.from("state_turnamen").delete().not("turnamen_id", "is", null);
+            await db.from("tim").delete().not("turnamen_id", "is", null);
+            await db.from("turnamen").delete().not("nama", "is", null);
+
+            // Reset state lokal
+            state = {
+              turnamenId: null,
+              nama: "",
+              sistem: "single",
+              rrType: null,
+              players: [],
+              matches: [],
+              logs: [],
+              standings: [],
+            };
+
+            render();
+            setupSection.classList.remove("hidden");
+            bracketSection.classList.add("hidden");
+            document.getElementById("setup-form").reset();
+            playersInputs.innerHTML = "";
+
+            alert("✅ SEMUA data berhasil dihapus! Siap untuk turnamen baru.");
+          } catch (error) {
+            alert("Error menghapus data: " + error.message);
+            console.error(error);
+          }
         }
       };
 
@@ -1558,100 +1587,7 @@ async function checkExistingTournament() {
   }
 }
 
-document.getElementById("btn-reset-all").onclick = async () => {
-  if (
-    !confirm(
-      "Hapus SEMUA data dari database? Tindakan ini TIDAK BISA dikembalikan!",
-    )
-  ) {
-    return;
-  }
-
-  try {
-    // ✅ Hapus data dari ke-4 tabel ini saja secara spesifik
-    // (wajib menggunakan filter seperti .not('kolom', 'is', null) agar tidak ditolak oleh Supabase)
-    // Tabel club_roulette TIDAK akan disentuh/dihapus.
-    await db.from("log_activity").delete().not("timestamp", "is", null);
-    await db.from("state_turnamen").delete().not("turnamen_id", "is", null);
-    await db.from("tim").delete().not("turnamen_id", "is", null);
-    await db.from("turnamen").delete().not("nama", "is", null);
-
-    // Reset state lokal
-    state = {
-      turnamenId: null,
-      nama: "",
-      sistem: "single",
-      rrType: null,
-      players: [],
-      matches: [],
-      logs: [],
-      standings: [],
-    };
-
-    render();
-    setupSection.classList.remove("hidden");
-    bracketSection.classList.add("hidden");
-    document.getElementById("setup-form").reset();
-    playersInputs.innerHTML = "";
-
-    alert("✅ SEMUA data berhasil dihapus!");
-  } catch (error) {
-    alert("Error menghapus data: " + error.message);
-    console.error(error);
-  }
-};
-
-async function resetTournament() {
-  if (!state.turnamenId) {
-    // If not saved yet or already cleared
-    return goBackToSetup();
-  }
-
-  try {
-    // Hapus data turnamen saat ini dari database
-    await db.from("log_activity").delete().eq("turnamen_nama", state.nama);
-    await db
-      .from("state_turnamen")
-      .delete()
-      .eq("turnamen_id", state.turnamenId);
-    await db.from("tim").delete().eq("turnamen_id", state.turnamenId);
-    await db.from("turnamen").delete().eq("id", state.turnamenId);
-
-    alert("Turnamen saat ini telah dihapus.");
-    goBackToSetup();
-  } catch (error) {
-    alert("Error menghapus turnamen: " + error.message);
-    console.error(error);
-  }
-}
-
-function goBackToSetup() {
-  state = {
-    turnamenId: null,
-    nama: "",
-    sistem: "single",
-    rrType: null,
-    players: [],
-    matches: [],
-    logs: [],
-    standings: [],
-  };
-
-  render();
-  setupSection.classList.remove("hidden");
-  bracketSection.classList.add("hidden");
-  document.getElementById("setup-form").reset();
-  playersInputs.innerHTML = "";
-  currentMatchId = null;
-}
-
-if (btnKembali) {
-  btnKembali.addEventListener("click", async () => {
-    if (confirm("Kembali ke halaman setup? Turnamen saat ini akan dihapus.")) {
-      await resetTournament();
-    }
-  });
-}
+// State Management
 
 async function saveState() {
   if (!state.turnamenId) return;
