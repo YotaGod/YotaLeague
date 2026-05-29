@@ -1617,30 +1617,18 @@ const cameraModal = document.getElementById("roulette-camera-modal");
 const closeCategoryModal = document.getElementById("close-category-modal");
 const closeCameraModal = document.getElementById("close-camera-modal");
 const rouletteVideo = document.getElementById("roulette-video");
-const faceIndicator = document.getElementById("face-indicator");
+const faceOverlaysContainer = document.getElementById("face-overlays-container");
 const noFaceWarning = document.getElementById("no-face-warning");
-const rouletteSpinner = document.getElementById("roulette-spinner");
-const rouletteResult = document.getElementById("roulette-result");
 const rouletteStatus = document.getElementById("roulette-status");
-const spinnerLogo = document.getElementById("spinner-logo");
-const spinnerName = document.getElementById("spinner-name");
-const resultLogo = document.getElementById("result-logo");
-const resultName = document.getElementById("result-name");
-const resultCategory = document.getElementById("result-category");
+const btnStartGacha = document.getElementById("btn-start-gacha");
 
 let rouletteClubs = [];
 let selectedCategory = "";
-let faceDetected = false;
-let isRouletteSpinning = false;
-let rouletteInterval = null;
+let currentDetections = [];
 let faceDetectionInterval = null;
 let stream = null;
 
 function clearRouletteTimers() {
-  if (rouletteInterval) {
-    clearInterval(rouletteInterval);
-    rouletteInterval = null;
-  }
   if (faceDetectionInterval) {
     clearInterval(faceDetectionInterval);
     faceDetectionInterval = null;
@@ -1707,24 +1695,17 @@ async function loadClubsForCategory(category) {
 // Buka modal kamera
 async function openCameraModal() {
   clearRouletteTimers();
-  isRouletteSpinning = false;
 
   cameraModal.classList.remove("hidden");
-  rouletteSpinner.classList.add("hidden");
-  rouletteSpinner.classList.remove("is-spinning");
-  rouletteResult.classList.add("hidden");
-  faceIndicator.classList.add("hidden");
+  faceOverlaysContainer.innerHTML = "";
+  btnStartGacha.classList.add("hidden");
   noFaceWarning.classList.add("hidden");
   rouletteStatus.textContent = "Mengaktifkan kamera...";
-  faceDetected = false;
+  currentDetections = [];
 
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: "user",
-        width: { ideal: 640 },
-        height: { ideal: 480 },
-      },
+      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
     });
     rouletteVideo.srcObject = stream;
 
@@ -1732,37 +1713,31 @@ async function openCameraModal() {
     rouletteStatus.textContent = "Memuat model deteksi wajah...";
     await loadFaceApiModels();
 
-    // Mulai deteksi wajah
-    startFaceDetection();
+    // Tunggu video play
+    rouletteVideo.onplay = () => {
+      startFaceDetection();
+    };
   } catch (error) {
     console.error("Camera error:", error);
-    rouletteStatus.textContent =
-      "Gagal mengakses kamera. Pastikan izin kamera diberikan.";
-    noFaceWarning.textContent =
-      "❌ Gagal mengakses kamera. Periksa izin browser.";
+    rouletteStatus.textContent = "Gagal mengakses kamera. Pastikan izin kamera diberikan.";
+    noFaceWarning.textContent = "❌ Gagal mengakses kamera. Periksa izin browser.";
     noFaceWarning.classList.remove("hidden");
   }
 }
 
 // Load face-api.js models dari CDN
 async function loadFaceApiModels() {
-  // Cek apakah face-api.js sudah dimuat
   if (typeof faceapi === "undefined") {
-    // Load script dari CDN
     await new Promise((resolve, reject) => {
       const script = document.createElement("script");
-      script.src =
-        "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js";
+      script.src = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js";
       script.onload = resolve;
       script.onerror = reject;
       document.head.appendChild(script);
     });
   }
 
-  // Load model tiny face detector
-  const MODEL_URL =
-    "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model";
-
+  const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model";
   try {
     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
     rouletteStatus.textContent = "Model siap. Tunjukkan wajah ke kamera!";
@@ -1774,41 +1749,35 @@ async function loadFaceApiModels() {
 
 // Mulai deteksi wajah
 function startFaceDetection() {
-  if (faceDetectionInterval) {
-    clearInterval(faceDetectionInterval);
-    faceDetectionInterval = null;
-  }
+  if (faceDetectionInterval) clearInterval(faceDetectionInterval);
 
-  let noFaceTimeout = setTimeout(() => {
-    if (!faceDetected) {
-      noFaceWarning.classList.remove("hidden");
-      rouletteStatus.textContent =
-        "Tidak ada wajah terdeteksi selama 5 detik.";
-    }
-  }, 5000);
-
+  let frameCount = 0;
   faceDetectionInterval = setInterval(async () => {
-    if (typeof faceapi === "undefined") return;
+    if (typeof faceapi === "undefined" || rouletteVideo.paused || rouletteVideo.ended) return;
 
     try {
+      const displaySize = { width: rouletteVideo.offsetWidth, height: rouletteVideo.offsetHeight };
+      
       const detections = await faceapi.detectAllFaces(
         rouletteVideo,
-        new faceapi.TinyFaceDetectorOptions(),
+        new faceapi.TinyFaceDetectorOptions()
       );
+      
+      const resizedDetections = faceapi.resizeResults(detections, displaySize);
+      currentDetections = resizedDetections;
 
-      if (detections.length > 0 && !faceDetected) {
-        faceDetected = true;
-        clearTimeout(noFaceTimeout);
-        faceIndicator.classList.remove("hidden");
-        rouletteStatus.textContent = "Wajah terdeteksi! Memulai roulette...";
-
-        // Mulai animasi roulette setelah delay singkat
-        setTimeout(() => {
-          startRouletteAnimation();
-        }, 500);
-
-        // Hentikan deteksi wajah (sudah tidak perlu)
-        clearInterval(faceDetectionInterval);
+      if (currentDetections.length > 0) {
+        noFaceWarning.classList.add("hidden");
+        btnStartGacha.classList.remove("hidden");
+        rouletteStatus.textContent = `${currentDetections.length} Wajah terdeteksi! Tekan "Mulai Gacha" jika siap.`;
+        frameCount = 0;
+      } else {
+        btnStartGacha.classList.add("hidden");
+        rouletteStatus.textContent = "Mencari wajah...";
+        frameCount++;
+        if (frameCount > 25) {
+          noFaceWarning.classList.remove("hidden");
+        }
       }
     } catch (error) {
       console.error("Detection error:", error);
@@ -1816,79 +1785,90 @@ function startFaceDetection() {
   }, 200);
 }
 
-// Animasi roulette
-function startRouletteAnimation() {
-  if (isRouletteSpinning || rouletteClubs.length === 0) return;
+// Start Gacha Logic
+if (btnStartGacha) {
+  btnStartGacha.addEventListener("click", () => {
+    if (currentDetections.length === 0 || rouletteClubs.length === 0) return;
+    
+    // Hentikan pelacakan
+    clearInterval(faceDetectionInterval);
+    btnStartGacha.classList.add("hidden");
+    rouletteStatus.textContent = "🎰 Mengundi klub...";
 
-  clearRouletteTimers();
-  isRouletteSpinning = true;
+    // Render Overlay untuk setiap wajah
+    faceOverlaysContainer.innerHTML = "";
+    const activeSpinners = [];
 
-  rouletteSpinner.classList.remove("hidden");
-  rouletteSpinner.classList.add("is-spinning");
-  rouletteResult.classList.add("hidden");
-  rouletteStatus.textContent = "🎰 Roulette berputar...";
+    currentDetections.forEach((det, index) => {
+      const overlay = document.createElement("div");
+      overlay.className = "face-overlay is-spinning";
+      // Posisi di atas kepala (tengah X, pucuk Y)
+      overlay.style.left = `${det.box.x + det.box.width / 2}px`;
+      overlay.style.top = `${det.box.y}px`;
 
-  let spinCount = 0;
-  const totalSpins = 20;
-  const spinIntervalMs = 100;
+      overlay.innerHTML = `
+        <div class="spinner-logo"></div>
+        <div class="spinner-name">...</div>
+      `;
+      faceOverlaysContainer.appendChild(overlay);
 
-  rouletteInterval = setInterval(() => {
-    const randomClub =
-      rouletteClubs[Math.floor(Math.random() * rouletteClubs.length)];
-    if (!randomClub) return;
+      activeSpinners.push({
+        el: overlay,
+        logo: overlay.querySelector(".spinner-logo"),
+        name: overlay.querySelector(".spinner-name")
+      });
+    });
 
-    displayClubInSpinner(randomClub);
-    spinCount++;
+    // Spin animation
+    let spinCount = 0;
+    const totalSpins = 20;
+    const spinIntervalMs = 100;
 
-    if (spinCount >= totalSpins) {
-      clearRouletteTimers();
-      isRouletteSpinning = false;
+    const spinTimer = setInterval(() => {
+      activeSpinners.forEach(spinner => {
+        const randomClub = rouletteClubs[Math.floor(Math.random() * rouletteClubs.length)];
+        if (randomClub.logo_url) {
+          spinner.logo.innerHTML = `<img src="${randomClub.logo_url}" alt="${randomClub.nama}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
+        } else {
+          const initials = randomClub.nama.substring(0, 2).toUpperCase();
+          const bgColor = getRandomColor();
+          spinner.logo.innerHTML = `<div class="logo-placeholder" style="background:${bgColor};width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;">${initials}</div>`;
+        }
+        spinner.name.textContent = randomClub.nama;
+      });
+      spinCount++;
 
-      const finalClub =
-        rouletteClubs[Math.floor(Math.random() * rouletteClubs.length)];
-      setTimeout(() => {
-        if (finalClub) displayResult(finalClub);
-        else rouletteStatus.textContent = "Gagal memilih klub. Coba lagi.";
-      }, 300);
-    }
-  }, spinIntervalMs);
-}
+      if (spinCount >= totalSpins) {
+        clearInterval(spinTimer);
+        
+        // Pilih klub final secara unik jika klub cukup
+        const finalClubs = [];
+        let availableClubs = [...rouletteClubs];
+        
+        activeSpinners.forEach(spinner => {
+          if (availableClubs.length === 0) availableClubs = [...rouletteClubs]; // fallback jika klub sedikit
+          const randIndex = Math.floor(Math.random() * availableClubs.length);
+          const selected = availableClubs[randIndex];
+          finalClubs.push(selected);
+          availableClubs.splice(randIndex, 1); // pastikan tidak duplikat
 
-// Tampilkan klub di spinner
-function displayClubInSpinner(club) {
-  if (!club) return;
-
-  if (club.logo_url) {
-    spinnerLogo.innerHTML = `<img src="${club.logo_url}" alt="${club.nama}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
-  } else {
-    // Placeholder dengan inisial
-    const initials = club.nama.substring(0, 2).toUpperCase();
-    const bgColor = getRandomColor();
-    spinnerLogo.innerHTML = `<div class="logo-placeholder" style="background:${bgColor}">${initials}</div>`;
-  }
-  spinnerName.textContent = club.nama;
-}
-
-// Tampilkan hasil akhir
-function displayResult(club) {
-  if (!club) return;
-
-  isRouletteSpinning = false;
-  rouletteSpinner.classList.remove("is-spinning");
-  rouletteSpinner.classList.add("hidden");
-  rouletteResult.classList.remove("hidden");
-  rouletteStatus.textContent = "";
-
-  if (club.logo_url) {
-    resultLogo.innerHTML = `<img src="${club.logo_url}" alt="${club.nama}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
-  } else {
-    const initials = club.nama.substring(0, 2).toUpperCase();
-    const bgColor = getRandomColor();
-    resultLogo.innerHTML = `<div class="logo-placeholder" style="background:${bgColor}">${initials}</div>`;
-  }
-
-  resultName.textContent = club.nama;
-  resultCategory.textContent = club.kategori;
+          spinner.el.classList.remove("is-spinning");
+          spinner.el.classList.add("is-result");
+          
+          if (selected.logo_url) {
+            spinner.logo.innerHTML = `<img src="${selected.logo_url}" alt="${selected.nama}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
+          } else {
+            const initials = selected.nama.substring(0, 2).toUpperCase();
+            const bgColor = getRandomColor();
+            spinner.logo.innerHTML = `<div class="logo-placeholder" style="background:${bgColor};width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;">${initials}</div>`;
+          }
+          spinner.name.textContent = selected.nama;
+        });
+        
+        rouletteStatus.textContent = "🎉 Selesai! Silakan catat hasilnya.";
+      }
+    }, spinIntervalMs);
+  });
 }
 
 // Warna random untuk placeholder

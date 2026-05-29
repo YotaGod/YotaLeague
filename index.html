@@ -109,27 +109,20 @@
       <!-- Modal Kamera & Roulette -->
       <div id="roulette-camera-modal" class="modal hidden">
         <div class="modal-content roulette-camera-modal">
-          <div class="camera-container">
+          <div class="camera-container" style="position: relative;">
             <video id="roulette-video" autoplay playsinline></video>
-            <div id="face-indicator" class="face-indicator hidden">👤 Wajah Terdeteksi!</div>
+            <div id="face-overlays-container" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></div>
             <div id="no-face-warning" class="no-face-warning hidden">
-              ️ Tidak ada wajah terdeteksi. Pastikan kamera aktif dan wajah Anda terlihat.
+              ⚠️ Tidak ada wajah terdeteksi. Pastikan kamera aktif dan wajah Anda terlihat.
             </div>
           </div>
           <div id="roulette-display" class="roulette-display">
-            <div id="roulette-spinner" class="roulette-spinner hidden">
-              <div id="spinner-logo" class="spinner-logo"></div>
-              <div id="spinner-name" class="spinner-name">...</div>
+            <div id="roulette-status" class="roulette-status">Mendeteksi Wajah...</div>
+            <div class="roulette-actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+              <button type="button" id="btn-start-gacha" class="primary hidden">🎰 Mulai Gacha</button>
+              <button type="button" id="close-camera-modal" class="danger">Tutup</button>
             </div>
-            <div id="roulette-result" class="roulette-result hidden">
-              <div class="result-label">🎉 Klub Terpilih!</div>
-              <div id="result-logo" class="result-logo"></div>
-              <div id="result-name" class="result-name"></div>
-              <div id="result-category" class="result-category"></div>
-            </div>
-            <div id="roulette-status" class="roulette-status">Memilih kategori...</div>
           </div>
-          <button type="button" id="close-camera-modal" class="danger" style="margin-top: 15px;">Tutup</button>
         </div>
       </div>
 
