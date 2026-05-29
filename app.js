@@ -1734,7 +1734,7 @@ function startFaceDetection() {
       
       const detections = await faceapi.detectAllFaces(
         rouletteVideo,
-        new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.3 })
+        new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.4 })
       );
       
       const resizedDetections = faceapi.resizeResults(detections, displaySize);
