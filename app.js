@@ -754,22 +754,6 @@ function render() {
       renderEliminationBracket();
     }
 
-    // Render log
-    if (state.logs.length > 0) {
-      logList.innerHTML = state.logs
-        .map(
-          (l) => `
-        <li>
-          <strong>${l.deskripsi}</strong>: ${l.skor} 
-          <span class="winner-text">→ ${l.pemenang}</span>
-        </li>
-      `,
-        )
-        .join("");
-    } else {
-      logList.innerHTML = "<li>Belum ada pertandingan</li>";
-    }
-
     // Render Blacklist
     renderBlacklist();
   }
@@ -1297,26 +1281,6 @@ document.getElementById("confirm-score").onclick = async () => {
     }
   }
 
-  // Log
-  const legText = m.leg ? `Leg ${m.leg}` : "";
-  const log = {
-    turnamen_nama: state.nama,
-    deskripsi:
-      state.sistem === "round_robin" ? `Leg ${m.leg || 1}` : `Ronde ${m.round}`,
-    skor: `${sA}-${sB}`,
-    pemenang:
-      state.sistem === "round_robin"
-        ? sA > sB
-          ? m.playerA.nama_tim
-          : sB > sA
-            ? m.playerB.nama_tim
-            : "Seri"
-        : m.winner?.nama_tim,
-    timestamp: new Date().toISOString(),
-    user_id: state.userId,
-  };
-  state.logs.unshift(log);
-  await db.from("log_activity").insert(log);
   await saveState();
 
   scoreModal.classList.add("hidden");
