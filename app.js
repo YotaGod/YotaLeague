@@ -1745,9 +1745,42 @@ function startFaceDetection() {
         btnStartGacha.classList.remove("hidden");
         rouletteStatus.textContent = `${currentDetections.length} Wajah terdeteksi! Tekan "Mulai Gacha" jika siap.`;
         frameCount = 0;
+
+        // Render bounding box/indikator wajah
+        faceOverlaysContainer.innerHTML = "";
+        currentDetections.forEach((det) => {
+          const indicator = document.createElement("div");
+          indicator.style.position = "absolute";
+          indicator.style.left = `${det.box.x}px`;
+          indicator.style.top = `${det.box.y}px`;
+          indicator.style.width = `${det.box.width}px`;
+          indicator.style.height = `${det.box.height}px`;
+          indicator.style.border = "3px dashed #00e676";
+          indicator.style.borderRadius = "15px";
+          indicator.style.boxShadow = "0 0 10px rgba(0,230,118,0.5)";
+          indicator.style.pointerEvents = "none";
+          
+          const label = document.createElement("div");
+          label.textContent = "Wajah Terdeteksi";
+          label.style.position = "absolute";
+          label.style.top = "-25px";
+          label.style.left = "50%";
+          label.style.transform = "translateX(-50%)";
+          label.style.background = "#00e676";
+          label.style.color = "#000";
+          label.style.padding = "2px 8px";
+          label.style.borderRadius = "10px";
+          label.style.fontSize = "12px";
+          label.style.fontWeight = "bold";
+          label.style.whiteSpace = "nowrap";
+          
+          indicator.appendChild(label);
+          faceOverlaysContainer.appendChild(indicator);
+        });
       } else {
         btnStartGacha.classList.add("hidden");
         rouletteStatus.textContent = "Mencari wajah...";
+        faceOverlaysContainer.innerHTML = ""; // Bersihkan indikator
         frameCount++;
         if (frameCount > 25) {
           noFaceWarning.classList.remove("hidden");
