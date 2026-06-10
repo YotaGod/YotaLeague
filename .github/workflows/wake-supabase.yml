@@ -49,8 +49,8 @@ jobs:
             fi
 
             # ✅ Query ke PostgREST (database) — ini yang BENAR-BENAR dihitung sebagai aktivitas oleh Supabase
-            # Melakukan SELECT ke tabel 'turnamen' dengan limit 1. Jika tabel tidak ada, tetap akan memicu aktivitas DB.
-            DB_URL="${URL%/}/rest/v1/turnamen?select=id&limit=1"
+            # Tidak perlu mencantumkan kolom — PostgREST otomatis pilih semua kolom
+            DB_URL="${URL%/}/rest/v1/turnamen?limit=1"
             echo "🗄️  Querying DATABASE via: $DB_URL"
 
             # Allow curl to fail without killing the whole job
