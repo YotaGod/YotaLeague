@@ -13,6 +13,8 @@
   <!-- Supabase SDK via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Config lokal (gitignored). Di production, diganti oleh GitHub Actions inject. -->
+  <script src="config.local.js" onerror="console.warn('config.local.js tidak ditemukan — pastikan sudah di-setup atau ini environment production.')"></script>
 </head>
 <body>
   <header>

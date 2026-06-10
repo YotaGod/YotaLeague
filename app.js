@@ -1,6 +1,11 @@
-// 🔑 GANTI DENGAN KREDENSIAL SUPABASE KAMU
-const SUPABASE_URL = "SUPABASE_URL_HIDDEN";
-const SUPABASE_ANON_KEY = "SUPABASE_ANON_KEY_HIDDEN";
+// Kredensial dibaca dari config yang di-inject saat deploy (lihat .github/workflows/deploy.yml)
+// Untuk development lokal, buat file config.local.js (sudah ada di .gitignore)
+const SUPABASE_URL = window.__APP_CONFIG__?.supabaseUrl || "";
+const SUPABASE_ANON_KEY = window.__APP_CONFIG__?.supabaseAnonKey || "";
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error("❌ Config tidak ditemukan. Pastikan config.local.js ada untuk dev lokal.");
+}
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
