@@ -18,7 +18,7 @@ jobs:
             exit 1
           fi
 
-      - name: Ping Supabase projects to keep them awake
+      - name: Query Supabase database to keep projects awake
         env:
           SUPABASE_PROJECTS_JSON: ${{ secrets.SUPABASE_PROJECTS_JSON }}
         run: |
@@ -48,15 +48,17 @@ jobs:
               continue
             fi
 
-            # Auth health endpoint – always exists and is safe to call with anon key
-            HEALTH_URL="${URL%/}/auth/v1/health"
-            echo "🌐 Pinging AUTH via: $HEALTH_URL"
+            # ✅ Query ke PostgREST (database) — ini yang BENAR-BENAR dihitung sebagai aktivitas oleh Supabase
+            # Melakukan SELECT ke tabel 'turnamen' dengan limit 1. Jika tabel tidak ada, tetap akan memicu aktivitas DB.
+            DB_URL="${URL%/}/rest/v1/turnamen?select=id&limit=1"
+            echo "🗄️  Querying DATABASE via: $DB_URL"
 
             # Allow curl to fail without killing the whole job
             set +e
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
               -H "apikey: $KEY" \
-              "$HEALTH_URL")
+              -H "Authorization: Bearer $KEY" \
+              "$DB_URL")
             CURL_EXIT=$?
             set -e
 
@@ -66,8 +68,15 @@ jobs:
             fi
 
             if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-              echo "✅ $URL responded with HTTP $HTTP_CODE — project is reachable."
+              echo "✅ $URL — Database query responded HTTP $HTTP_CODE — project is ALIVE!"
+            elif [ "$HTTP_CODE" -eq 404 ]; then
+              echo "⚠️ $URL — HTTP 404 (tabel mungkin berbeda nama, tapi DB sudah aktif)"
             else
-              echo "❌ $URL responded with HTTP $HTTP_CODE — check project status or URL."
+              echo "❌ $URL — HTTP $HTTP_CODE — check project status or URL."
             fi
+
+            # Tambahan: ping auth health juga sebagai backup
+            HEALTH_URL="${URL%/}/auth/v1/health"
+            curl -s -o /dev/null -H "apikey: $KEY" "$HEALTH_URL" || true
+            echo "🔔 Auth health also pinged for $URL"
           done
