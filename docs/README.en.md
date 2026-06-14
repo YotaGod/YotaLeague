@@ -1,7 +1,7 @@
 <!-- Language Switcher -->
 <div align="right">
 
-[🇮🇩 Bahasa Indonesia](./README.md) &nbsp;|&nbsp; 🇺🇸 **English**
+[🇮🇩 Bahasa Indonesia](../README.md) &nbsp;|&nbsp; 🇺🇸 **English**
 
 </div>
 

@@ -1,7 +1,7 @@
 <!-- Language Switcher -->
 <div align="right">
 
-🇮🇩 **Bahasa Indonesia** &nbsp;|&nbsp; [🇺🇸 English](./README.en.md)
+🇮🇩 **Bahasa Indonesia** &nbsp;|&nbsp; [🇺🇸 English](./docs/README.en.md)
 
 </div>
 
@@ -27,7 +27,7 @@
 
 <br>
 
-[🚀 Buka Aplikasi](#-demo) &nbsp;·&nbsp; [📖 Panduan Setup](./SETUP_GUIDE.md) &nbsp;·&nbsp; [🐛 Laporkan Bug](../../issues) &nbsp;·&nbsp; [💡 Request Fitur](../../issues)
+[🚀 Buka Aplikasi](#-demo) &nbsp;·&nbsp; [📖 Panduan Setup](./docs/SETUP_GUIDE.md) &nbsp;·&nbsp; [🐛 Laporkan Bug](../../issues) &nbsp;·&nbsp; [💡 Request Fitur](../../issues)
 
 </div>
 
@@ -130,7 +130,7 @@ YotaLeague/
 
 ## ⚙️ Setup & Instalasi
 
-Silakan baca panduan lengkap pada [SETUP_GUIDE.md](./SETUP_GUIDE.md) untuk melakukan setup lokal maupun konfigurasi deployment di GitHub Pages Anda.
+Silakan baca panduan lengkap pada [SETUP_GUIDE.md](./docs/SETUP_GUIDE.md) untuk melakukan setup lokal maupun konfigurasi deployment di GitHub Pages Anda.
 
 ---
 
