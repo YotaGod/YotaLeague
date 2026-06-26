@@ -82,4 +82,16 @@ jobs:
             HEALTH_URL="${URL%/}/auth/v1/health"
             curl -s -o /dev/null -H "apikey: $KEY" "$HEALTH_URL" || true
             echo "🔔 Auth health also pinged for $URL"
+            
+            # ✅ Cleanup: Hapus log dummy (SYSTEM_WAKEUP) yang lebih lama dari 7 hari
+            # Hitung tanggal 7 hari yang lalu dalam format ISO
+            SEVEN_DAYS_AGO=$(date -u -d "7 days ago" +"%Y-%m-%dT%H:%M:%SZ")
+            DELETE_URL="${URL%/}/rest/v1/log_activity?tournaments_nama=eq.SYSTEM_WAKEUP&timestamp=lt.${SEVEN_DAYS_AGO}"
+            
+            echo "🧹 Cleaning up SYSTEM_WAKEUP logs older than 7 days..."
+            curl -s -o /dev/null -X DELETE \
+              -H "apikey: $KEY" \
+              -H "Authorization: Bearer $KEY" \
+              "$DELETE_URL" || true
+            echo "✅ Cleanup finished for $URL"
           done
