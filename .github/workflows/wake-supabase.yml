@@ -48,16 +48,19 @@ jobs:
               continue
             fi
 
-            # ✅ Query ke PostgREST (database) — ini yang BENAR-BENAR dihitung sebagai aktivitas oleh Supabase
-            # Tidak perlu mencantumkan kolom — PostgREST otomatis pilih semua kolom
-            DB_URL="${URL%/}/rest/v1/turnamen?limit=1"
-            echo "🗄️  Querying DATABASE via: $DB_URL"
+            # ✅ Insert data ke log_activity — ini pasti dihitung sebagai aktivitas tulis oleh Supabase
+            DB_URL="${URL%/}/rest/v1/log_activity"
+            echo "🗄️  Inserting wakeup log to: $DB_URL"
 
             # Allow curl to fail without killing the whole job
             set +e
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X POST \
               -H "apikey: $KEY" \
               -H "Authorization: Bearer $KEY" \
+              -H "Content-Type: application/json" \
+              -H "Prefer: return=minimal" \
+              -d '{"tournaments_nama": "SYSTEM_WAKEUP", "deskripsi": "Automated ping to keep project alive"}' \
               "$DB_URL")
             CURL_EXIT=$?
             set -e
@@ -68,9 +71,9 @@ jobs:
             fi
 
             if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-              echo "✅ $URL — Database query responded HTTP $HTTP_CODE — project is ALIVE!"
+              echo "✅ $URL — Insert responded HTTP $HTTP_CODE — project is ALIVE!"
             elif [ "$HTTP_CODE" -eq 404 ]; then
-              echo "⚠️ $URL — HTTP 404 (tabel mungkin berbeda nama, tapi DB sudah aktif)"
+              echo "⚠️ $URL — HTTP 404 (tabel mungkin belum ada, tapi DB sudah aktif)"
             else
               echo "❌ $URL — HTTP $HTTP_CODE — check project status or URL."
             fi
