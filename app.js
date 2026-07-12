@@ -41,9 +41,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (confirm("Hapus SEMUA data dari database? Tindakan ini TIDAK BISA dikembalikan!")) {
         try {
           await db.from("log_activity").delete().not("timestamp", "is", null);
-          await db.from("state_turnamen").delete().not("turnamen_id", "is", null);
-          await db.from("tim").delete().not("turnamen_id", "is", null);
-          await db.from("turnamen").delete().not("nama", "is", null);
+          await db.from("state_turnamen").delete().not("tournaments_id", "is", null);
+          await db.from("tim").delete().not("tournaments_id", "is", null);
+          await db.from("tournaments").delete().not("nama", "is", null);
 
           state = { turnamenId: null, nama: "", sistem: "single", rrType: null, players: [], matches: [], logs: [], standings: [] };
           render();
@@ -189,7 +189,7 @@ setupForm.addEventListener("submit", async (e) => {
   try {
     // 1. Buat turnamen
     const { data: turnamen, error: errT } = await db
-      .from("turnamen")
+      .from("tournaments")
       .insert({ nama, sistem: state.sistem, user_id: state.userId })
       .select()
       .single();
@@ -206,7 +206,7 @@ setupForm.addEventListener("submit", async (e) => {
         id: p.id,
         nama_pemain: p.nama_pemain,
         nama_tim: p.nama_tim,
-        turnamen_id: state.turnamenId,
+        tournaments_id: state.turnamenId,
         user_id: state.userId,
       })),
     );
@@ -1416,7 +1416,7 @@ async function saveStandings() {
   const { data: existing } = await db
     .from("state_turnamen")
     .select("id")
-    .eq("turnamen_id", state.turnamenId)
+    .eq("tournaments_id", state.turnamenId)
     .order("updated_at", { ascending: false })
     .limit(1);
 
@@ -1437,7 +1437,7 @@ async function loadState(turnamenId) {
   const { data, error: stateError } = await db
     .from("state_turnamen")
     .select("*")
-    .eq("turnamen_id", turnamenId)
+    .eq("tournaments_id", turnamenId)
     .order("updated_at", { ascending: false })
     .limit(1);
 
@@ -1451,7 +1451,7 @@ async function loadState(turnamenId) {
   const { data: logs } = await db
     .from("log_activity")
     .select("*")
-    .eq("turnamen_nama", state.nama)
+    .eq("tournaments_nama", state.nama)
     .order("timestamp", { ascending: false })
     .limit(50);
 
@@ -1466,7 +1466,7 @@ async function loadStandings(turnamenId) {
   const { data } = await db
     .from("state_turnamen")
     .select("standings")
-    .eq("turnamen_id", turnamenId)
+    .eq("tournaments_id", turnamenId)
     .order("updated_at", { ascending: false })
     .limit(1);
     
@@ -1496,7 +1496,7 @@ async function checkExistingTournament() {
   if (!state.turnamenId) {
     // Cari turnamen terbaru yang aktif milik user ini
     const { data: turnamen, error: errT } = await db
-      .from("turnamen")
+      .from("tournaments")
       .select("*")
       .eq("user_id", state.userId)
       .order("created_at", { ascending: false })
@@ -1516,7 +1516,7 @@ async function checkExistingTournament() {
     const { data: players } = await db
       .from("tim")
       .select("*")
-      .eq("turnamen_id", turnamen.id);
+      .eq("tournaments_id", turnamen.id);
 
     state.players = players || [];
 
@@ -1549,7 +1549,7 @@ async function saveState() {
   const { data: existing } = await db
     .from("state_turnamen")
     .select("id")
-    .eq("turnamen_id", state.turnamenId)
+    .eq("tournaments_id", state.turnamenId)
     .order("updated_at", { ascending: false })
     .limit(1);
 
@@ -1557,7 +1557,7 @@ async function saveState() {
     const { error } = await db.from("state_turnamen").update(payload).eq("id", existing[0].id);
     if (error) console.error("Error updating state:", error);
   } else {
-    payload.turnamen_id = state.turnamenId;
+    payload.tournaments_id = state.turnamenId;
     payload.user_id = state.userId;
     const { error } = await db.from("state_turnamen").insert(payload);
     if (error) console.error("Error inserting state:", error);
