@@ -8,6 +8,7 @@ create table if not exists tournaments (
   nama text not null,
   sistem text not null, -- 'single', 'double', 'round_robin'
   rr_type text,         -- 'single' atau 'double' (khusus untuk round_robin)
+  user_id uuid,
   created_at timestamp with time zone default now()
 );
 
@@ -17,6 +18,7 @@ create table if not exists tim (
   tournaments_id uuid references tournaments(id) on delete cascade,
   nama_pemain text not null,
   nama_tim text not null,
+  user_id uuid,
   created_at timestamp with time zone default now()
 );
 
@@ -27,6 +29,7 @@ create table if not exists state_turnamen (
   tournaments_id uuid references tournaments(id) on delete cascade,
   data_pertandingan jsonb default '[]',
   standings jsonb default '[]',
+  user_id uuid,
   updated_at timestamp with time zone default now()
 );
 
